@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   Loader2,
   FileText,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Trip } from '../../types';
 
@@ -21,8 +22,8 @@ interface PODCollectionProps {
 
 const statusSteps = [
   { key: 'assigned', label: 'Assigned', icon: User },
-  { key: 'in_progress', label: 'In Progress', icon: Clock },
-  { key: 'pod_collected', label: 'Collected', icon: CheckCircle },
+  { key: 'in_progress', label: 'Picked Up', icon: Clock },
+  { key: 'pod_collected', label: 'POD Collected', icon: CheckCircle },
   { key: 'couriered', label: 'Couriered', icon: Truck },
 ];
 
@@ -62,11 +63,18 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
     const files = event.target.files;
     if (!files) return;
 
+    // Validate file types - only images allowed
+    const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+    if (validFiles.length !== files.length) {
+      alert('Only image files are allowed for proof of receipt');
+      return;
+    }
+
     setUploading(true);
     // Simulate file upload
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    const newFiles = Array.from(files).map(file => file.name);
+    const newFiles = validFiles.map(file => file.name);
     const updatedFiles = [...uploadedFiles, ...newFiles];
     setUploadedFiles(updatedFiles);
     onUpdateTrip(trip.id, { podImages: updatedFiles });
@@ -169,17 +177,20 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
           <AlertTriangle className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-red-500" />
           <h3 className="mt-2 text-base sm:text-lg font-semibold text-gray-900">Issue Reported</h3>
           <div className="mt-4 p-3 sm:p-4 bg-red-50 rounded-lg text-left">
-            <div className="text-sm">
-              <div className="font-medium text-red-800">Issue Type:</div>
-              <div className="text-red-700">{trip.issueReported.type}</div>
-              {trip.issueReported.description && (
-                <>
-                  <div className="font-medium text-red-800 mt-2">Description:</div>
-                  <div className="text-red-700">{trip.issueReported.description}</div>
-                </>
-              )}
-              <div className="text-xs text-red-600 mt-2">
-                Reported: {new Date(trip.issueReported.reportedAt).toLocaleString()}
+            <div className="flex items-start">
+              <AlertTriangle className="h-5 w-5 text-red-400 mr-3 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-red-800">Issue Type:</div>
+                <div className="text-red-700">{trip.issueReported.type}</div>
+                {trip.issueReported.description && (
+                  <>
+                    <div className="font-medium text-red-800 mt-2">Description:</div>
+                    <div className="text-red-700">{trip.issueReported.description}</div>
+                  </>
+                )}
+                <div className="text-xs text-red-600 mt-2">
+                  Reported: {new Date(trip.issueReported.reportedAt).toLocaleString()}
+                </div>
               </div>
             </div>
           </div>
@@ -262,7 +273,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
             ) : (
               <Play className="h-4 w-4 mr-2" />
             )}
-            {loading ? 'Starting...' : 'Start Task'}
+            {loading ? 'Picking Up...' : 'Pick Up Trip'}
           </button>
         )}
 
@@ -277,7 +288,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
             ) : (
               <CheckCircle className="h-4 w-4 mr-2" />
             )}
-            {loading ? 'Marking...' : 'Mark as Collected'}
+            {loading ? 'Marking...' : 'Mark POD Collected'}
           </button>
         )}
 
@@ -297,10 +308,10 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
         )}
       </div>
 
-      {/* Photo Upload Section */}
-      {(['in_progress', 'pod_collected', 'couriered'].includes(trip.status)) && (
+      {/* Proof of Receipt Upload Section - Only show when trip is picked up */}
+      {trip.status === 'in_progress' && (
         <div className="mb-4 sm:mb-6">
-          <h4 className="text-sm font-medium text-gray-900 mb-3">POD Documents</h4>
+          <h4 className="text-sm font-medium text-gray-900 mb-3">Upload Proof of Receipt</h4>
           
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 sm:p-4">
             <div className="text-center">
@@ -308,7 +319,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
               <div className="mt-2">
                 <label htmlFor="file-upload" className="cursor-pointer">
                   <span className="text-sm font-medium text-blue-600 hover:text-blue-500">
-                    Upload files
+                    Upload photos
                   </span>
                   <input
                     id="file-upload"
@@ -316,7 +327,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
                     type="file"
                     className="sr-only"
                     multiple
-                    accept="image/*,.pdf"
+                    accept="image/*"
                     onChange={handleFileUpload}
                   />
                 </label>
@@ -327,7 +338,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
                 </button>
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                PNG, JPG, PDF up to 10MB
+                Only image files (PNG, JPG) up to 10MB
               </p>
             </div>
           </div>
@@ -335,17 +346,17 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
           {uploading && (
             <div className="mt-2 flex items-center text-sm text-gray-600">
               <Loader2 className="animate-spin h-4 w-4 mr-2" />
-              Uploading files...
+              Uploading photos...
             </div>
           )}
 
           {uploadedFiles.length > 0 && (
             <div className="mt-4 space-y-2">
-              <h5 className="text-xs font-medium text-gray-700">Uploaded Files:</h5>
+              <h5 className="text-xs font-medium text-gray-700">Uploaded Photos:</h5>
               {uploadedFiles.map((file, index) => (
                 <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                   <div className="flex items-center min-w-0 flex-1">
-                    <FileText className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
+                    <ImageIcon className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
                     <span className="text-sm text-gray-700 truncate">{file}</span>
                   </div>
                   <button
@@ -359,18 +370,39 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
             </div>
           )}
 
-          {trip.status === 'in_progress' && uploadedFiles.length === 0 && (
-            <p className="text-xs text-red-600 mt-2">
-              Upload at least one document to mark as collected
-            </p>
+          {uploadedFiles.length === 0 && (
+            <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <div className="flex">
+                <AlertTriangle className="h-5 w-5 text-yellow-400 mr-2 flex-shrink-0" />
+                <div className="text-sm text-yellow-800">
+                  <strong>Photos Required:</strong> You must upload proof of receipt photos before marking POD as collected.
+                </div>
+              </div>
+            </div>
           )}
+        </div>
+      )}
+
+      {/* Show uploaded photos for other statuses */}
+      {(['pod_collected', 'couriered'].includes(trip.status)) && uploadedFiles.length > 0 && (
+        <div className="mb-4 sm:mb-6">
+          <h4 className="text-sm font-medium text-gray-900 mb-3">Proof of Receipt Photos</h4>
+          <div className="space-y-2">
+            {uploadedFiles.map((file, index) => (
+              <div key={index} className="flex items-center p-2 bg-green-50 rounded border border-green-200">
+                <ImageIcon className="h-4 w-4 text-green-600 mr-2 flex-shrink-0" />
+                <span className="text-sm text-green-800 truncate">{file}</span>
+                <CheckCircle className="h-4 w-4 text-green-600 ml-auto flex-shrink-0" />
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {/* Courier Details Section */}
       {(['pod_collected', 'couriered'].includes(trip.status)) && (
         <div className="mb-4 sm:mb-6">
-          <h4 className="text-sm font-medium text-gray-900 mb-3">Courier Details</h4>
+          <h4 className="text-sm font-medium text-gray-900 mb-3">Enter Courier Details</h4>
           
           <div className="grid grid-cols-1 gap-4">
             <div>
@@ -429,9 +461,14 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
           </div>
 
           {trip.status === 'pod_collected' && (!courierPartner || !awbNumber) && (
-            <p className="text-xs text-red-600 mt-2">
-              Fill courier partner and AWB number to mark as couriered
-            </p>
+            <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <div className="flex">
+                <AlertTriangle className="h-5 w-5 text-yellow-400 mr-2 flex-shrink-0" />
+                <div className="text-sm text-yellow-800">
+                  <strong>Required:</strong> Fill courier partner and AWB number to mark as couriered.
+                </div>
+              </div>
+            </div>
           )}
         </div>
       )}
