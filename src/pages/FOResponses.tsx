@@ -3,18 +3,15 @@ import {
   CheckCircle, 
   XCircle, 
   Clock, 
-  Eye, 
   Phone, 
   MessageSquare,
   Search,
-  Filter,
   RefreshCw,
   Download,
   User,
   Package,
   Calendar,
   FileText,
-  AlertTriangle,
   Loader2
 } from 'lucide-react';
 import { mockFOResponses } from '../data/mockData';

@@ -4,7 +4,6 @@ import {
   ArrowLeft, 
   Truck, 
   AlertTriangle, 
-  MapPin, 
   Calendar, 
   User, 
   Phone, 
@@ -292,7 +291,7 @@ const TripDetails: React.FC = () => {
                   Call Runner
                 </button>
               )}
-              {(trip.status === 'pod_collected' || trip.status === 'couriered') && trip.status !== 'delivered' && (
+              {(trip.status === 'pod_collected' || trip.status === 'couriered') && (
                 <button className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700">
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Mark as Delivered
