@@ -89,7 +89,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ trip, onClose }) => {
                   <div className="text-xs text-gray-500">{trip.driverPhone}</div>
                 </div>
                 <button
-                  onClick={() => handleCall(trip.driverPhone)}
+                  onClick={() => handleCall(trip.driverPhone!)}
                   className="p-2 text-blue-600 hover:text-blue-800"
                 >
                   <Phone className="h-4 w-4" />

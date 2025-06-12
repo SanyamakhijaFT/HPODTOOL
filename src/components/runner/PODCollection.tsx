@@ -10,7 +10,6 @@ import {
   X,
   AlertTriangle,
   Loader2,
-  FileText,
   Image as ImageIcon,
   Edit3,
   Save,

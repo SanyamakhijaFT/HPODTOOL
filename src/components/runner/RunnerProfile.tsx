@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Smartphone, Users, Target, TrendingUp, Award } from 'lucide-react';
+import { MapPin, Smartphone, Target, TrendingUp, Award } from 'lucide-react';
 import { RunnerProfile as RunnerProfileType } from '../../types';
 
 interface RunnerProfileProps {
