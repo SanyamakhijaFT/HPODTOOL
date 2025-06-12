@@ -12,6 +12,9 @@ import {
   Loader2,
   FileText,
   Image as ImageIcon,
+  Edit3,
+  Save,
+  RefreshCw,
 } from 'lucide-react';
 import { Trip } from '../../types';
 
@@ -42,6 +45,10 @@ const issueTypes = [
   'Address Not Found',
   'Already Couriered',
   'POD Not Ready',
+  'Vehicle Issue',
+  'Traffic/Route Issue',
+  'Customer Not Available',
+  'Document Missing',
   'Other Issue',
 ];
 
@@ -53,6 +60,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
   const [courierDate, setCourierDate] = useState(trip.courierDate || '');
   const [courierComments, setCourierComments] = useState(trip.courierComments || '');
   const [showIssueForm, setShowIssueForm] = useState(false);
+  const [showUpdateIssueForm, setShowUpdateIssueForm] = useState(false);
   const [issueType, setIssueType] = useState('');
   const [issueDescription, setIssueDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -123,6 +131,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
         type: issueType,
         description: issueDescription,
         reportedAt: new Date().toISOString(),
+        updates: trip.issueReported?.updates || [],
       }
     });
     
@@ -132,14 +141,58 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
     setLoading(false);
   };
 
-  const handleResumeAfterIssue = async () => {
+  const handleUpdateIssue = async () => {
+    if (!issueType && !issueDescription) return;
+    
     setLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Clear the issue and allow runner to continue
-    onUpdateTrip(trip.id, {
-      issueReported: undefined
-    });
+    const currentIssue = trip.issueReported;
+    if (currentIssue) {
+      const newUpdate = {
+        updatedAt: new Date().toISOString(),
+        type: issueType || currentIssue.type,
+        description: issueDescription || currentIssue.description,
+      };
+
+      onUpdateTrip(trip.id, {
+        issueReported: {
+          ...currentIssue,
+          type: issueType || currentIssue.type,
+          description: issueDescription || currentIssue.description,
+          updates: [...(currentIssue.updates || []), newUpdate],
+        }
+      });
+    }
+    
+    setShowUpdateIssueForm(false);
+    setIssueType('');
+    setIssueDescription('');
+    setLoading(false);
+  };
+
+  const handleResolveIssue = async () => {
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Mark issue as resolved and allow runner to continue
+    const currentIssue = trip.issueReported;
+    if (currentIssue) {
+      const resolveUpdate = {
+        updatedAt: new Date().toISOString(),
+        type: 'Issue Resolved',
+        description: 'Issue has been resolved. Resuming normal workflow.',
+      };
+
+      onUpdateTrip(trip.id, {
+        issueReported: {
+          ...currentIssue,
+          resolved: true,
+          resolvedAt: new Date().toISOString(),
+          updates: [...(currentIssue.updates || []), resolveUpdate],
+        }
+      });
+    }
     
     setLoading(false);
   };
@@ -177,18 +230,20 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
     );
   }
 
-  if (trip.issueReported) {
+  if (trip.issueReported && !trip.issueReported.resolved) {
     return (
       <div className="bg-white rounded-lg p-4 sm:p-6">
         <div className="text-center">
           <AlertTriangle className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-red-500" />
           <h3 className="mt-2 text-base sm:text-lg font-semibold text-gray-900">Issue Reported</h3>
+          
+          {/* Current Issue Details */}
           <div className="mt-4 p-3 sm:p-4 bg-red-50 rounded-lg text-left">
             <div className="flex items-start">
               <AlertTriangle className="h-5 w-5 text-red-400 mr-3 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <div className="text-sm font-medium text-red-800">Issue Type:</div>
-                <div className="text-red-700">{trip.issueReported.type}</div>
+                <div className="text-sm font-medium text-red-800">Current Issue:</div>
+                <div className="text-red-700 font-semibold">{trip.issueReported.type}</div>
                 {trip.issueReported.description && (
                   <>
                     <div className="font-medium text-red-800 mt-2">Description:</div>
@@ -201,20 +256,108 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
               </div>
             </div>
           </div>
+
+          {/* Issue Updates History */}
+          {trip.issueReported.updates && trip.issueReported.updates.length > 0 && (
+            <div className="mt-4 p-3 sm:p-4 bg-yellow-50 rounded-lg text-left">
+              <div className="text-sm font-medium text-yellow-800 mb-2">Issue Updates:</div>
+              <div className="space-y-2">
+                {trip.issueReported.updates.map((update, index) => (
+                  <div key={index} className="border-l-2 border-yellow-300 pl-3">
+                    <div className="text-xs text-yellow-600">
+                      {new Date(update.updatedAt).toLocaleString()}
+                    </div>
+                    <div className="text-sm text-yellow-800 font-medium">{update.type}</div>
+                    {update.description && (
+                      <div className="text-sm text-yellow-700">{update.description}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           
-          {/* Resume Button */}
-          <div className="mt-4">
+          {/* Action Buttons */}
+          <div className="mt-6 space-y-3">
+            {/* Update Issue */}
+            {!showUpdateIssueForm ? (
+              <button
+                onClick={() => setShowUpdateIssueForm(true)}
+                className="w-full flex items-center justify-center px-4 py-2 border border-yellow-300 rounded-md shadow-sm text-sm font-medium text-yellow-700 bg-yellow-50 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+              >
+                <Edit3 className="h-4 w-4 mr-2" />
+                Update Issue
+              </button>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Update Issue Type (Optional)
+                  </label>
+                  <select
+                    value={issueType}
+                    onChange={(e) => setIssueType(e.target.value)}
+                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+                  >
+                    <option value="">Keep current type</option>
+                    {issueTypes.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Update Description (Optional)
+                  </label>
+                  <textarea
+                    value={issueDescription}
+                    onChange={(e) => setIssueDescription(e.target.value)}
+                    placeholder="Add update about the issue..."
+                    rows={3}
+                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+                  />
+                </div>
+
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleUpdateIssue}
+                    disabled={loading}
+                    className="flex-1 flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    {loading ? 'Updating...' : 'Update Issue'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowUpdateIssueForm(false);
+                      setIssueType('');
+                      setIssueDescription('');
+                    }}
+                    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Resolve Issue */}
             <button
-              onClick={handleResumeAfterIssue}
+              onClick={handleResolveIssue}
               disabled={loading}
-              className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
             >
               {loading ? (
                 <Loader2 className="animate-spin h-4 w-4 mr-2" />
               ) : (
-                <Play className="h-4 w-4 mr-2" />
+                <RefreshCw className="h-4 w-4 mr-2" />
               )}
-              {loading ? 'Resuming...' : 'Resume Task'}
+              {loading ? 'Resolving...' : 'Mark Issue as Resolved & Resume'}
             </button>
           </div>
         </div>
@@ -480,80 +623,76 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
         </div>
       )}
 
-      {/* Issue Reporting */}
-      {trip.status !== 'couriered' && (
-        <div className="border-t border-gray-200 pt-4 sm:pt-6">
-          {!showIssueForm ? (
-            <button
-              onClick={() => setShowIssueForm(true)}
-              className="w-full flex items-center justify-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              Report Issue
-            </button>
-          ) : (
-            <div className="space-y-4">
-              <h4 className="text-sm font-medium text-gray-900">Report Issue</h4>
-              
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Issue Type
-                </label>
-                <select
-                  value={issueType}
-                  onChange={(e) => setIssueType(e.target.value)}
-                  className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
-                >
-                  <option value="">Select issue type</option>
-                  {issueTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-              </div>
-
-              {issueType === 'Other Issue' && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    value={issueDescription}
-                    onChange={(e) => setIssueDescription(e.target.value)}
-                    placeholder="Please describe the issue..."
-                    rows={3}
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
-                  />
-                </div>
-              )}
-
-              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-                <button
-                  onClick={handleReportIssue}
-                  disabled={!issueType || loading}
-                  className="flex-1 flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-                >
-                  {loading ? (
-                    <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                  ) : (
-                    <AlertTriangle className="h-4 w-4 mr-2" />
-                  )}
-                  {loading ? 'Submitting...' : 'Submit Report'}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowIssueForm(false);
-                    setIssueType('');
-                    setIssueDescription('');
-                  }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                >
-                  Cancel
-                </button>
-              </div>
+      {/* Issue Reporting - Available at any point */}
+      <div className="border-t border-gray-200 pt-4 sm:pt-6">
+        {!showIssueForm ? (
+          <button
+            onClick={() => setShowIssueForm(true)}
+            className="w-full flex items-center justify-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            <AlertTriangle className="h-4 w-4 mr-2" />
+            Report Issue
+          </button>
+        ) : (
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-gray-900">Report Issue</h4>
+            
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Issue Type
+              </label>
+              <select
+                value={issueType}
+                onChange={(e) => setIssueType(e.target.value)}
+                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
+              >
+                <option value="">Select issue type</option>
+                {issueTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
             </div>
-          )}
-        </div>
-      )}
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Description
+              </label>
+              <textarea
+                value={issueDescription}
+                onChange={(e) => setIssueDescription(e.target.value)}
+                placeholder="Please describe the issue in detail..."
+                rows={3}
+                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+              <button
+                onClick={handleReportIssue}
+                disabled={!issueType || loading}
+                className="flex-1 flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4 mr-2" />
+                )}
+                {loading ? 'Submitting...' : 'Submit Report'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowIssueForm(false);
+                  setIssueType('');
+                  setIssueDescription('');
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

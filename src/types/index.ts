@@ -45,6 +45,13 @@ export interface Trip {
     type: string;
     description?: string;
     reportedAt: string;
+    resolved?: boolean;
+    resolvedAt?: string;
+    updates?: {
+      updatedAt: string;
+      type: string;
+      description?: string;
+    }[];
   };
   owner?: string;
   foOfficeAddress?: string;
