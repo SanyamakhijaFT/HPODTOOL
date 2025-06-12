@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, RefreshCw, Download, AlertTriangle, Users } from 'lucide-react';
+import { Search, Filter, RefreshCw, Download, AlertTriangle } from 'lucide-react';
 
 interface SearchAndFiltersProps {
   onSearch: (query: string) => void;
