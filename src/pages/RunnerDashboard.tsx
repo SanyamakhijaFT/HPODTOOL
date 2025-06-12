@@ -12,21 +12,26 @@ const RunnerDashboard: React.FC = () => {
   const [selectedRunner, setSelectedRunner] = useState<string>(user?.id || '2');
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active');
   
-  // Get all trips for the selected runner
-  const allRunnerTrips = mockTrips.filter(trip => trip.runnerId === selectedRunner);
+  // Initialize trips state with mock data
+  const [trips, setTrips] = useState<Trip[]>(mockTrips);
+  
+  // Get all trips for the selected runner from current state
+  const allRunnerTrips = trips.filter(trip => trip.runnerId === selectedRunner);
   
   // Separate active and completed trips
   const activeTrips = allRunnerTrips.filter(trip => trip.status !== 'delivered');
   const completedTrips = allRunnerTrips.filter(trip => trip.status === 'delivered');
-  
-  const [trips, setTrips] = useState<Trip[]>(allRunnerTrips);
 
   const handleUpdateTrip = (tripId: string, updates: Partial<Trip>) => {
-    setTrips(prevTrips =>
-      prevTrips.map(trip =>
+    console.log('Updating trip:', tripId, 'with updates:', updates); // Debug log
+    
+    setTrips(prevTrips => {
+      const updatedTrips = prevTrips.map(trip =>
         trip.id === tripId ? { ...trip, ...updates } : trip
-      )
-    );
+      );
+      console.log('Updated trips:', updatedTrips); // Debug log
+      return updatedTrips;
+    });
   };
 
   // Get runner names for filter dropdown

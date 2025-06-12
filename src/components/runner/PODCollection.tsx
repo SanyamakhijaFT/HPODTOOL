@@ -77,6 +77,8 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
     const newFiles = validFiles.map(file => file.name);
     const updatedFiles = [...uploadedFiles, ...newFiles];
     setUploadedFiles(updatedFiles);
+    
+    // Update the trip with new images
     onUpdateTrip(trip.id, { podImages: updatedFiles });
     setUploading(false);
   };
@@ -99,6 +101,11 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
       updates.awbNumber = awbNumber;
       updates.courierDate = courierDate || new Date().toISOString().split('T')[0];
       updates.courierComments = courierComments;
+    }
+    
+    // Ensure POD images are included in the update
+    if (uploadedFiles.length > 0) {
+      updates.podImages = uploadedFiles;
     }
     
     onUpdateTrip(trip.id, updates);
