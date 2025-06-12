@@ -33,14 +33,6 @@ const RunnerProfile: React.FC<RunnerProfileProps> = ({ profile }) => {
             </div>
           </div>
         </div>
-        
-        {/* GPS Status */}
-        <div className="mt-4 flex items-center justify-between p-3 bg-green-50 rounded-lg">
-          <div className="flex items-center">
-            <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
-            <span className="text-sm font-medium text-green-800">GPS Tracking Active</span>
-          </div>
-        </div>
       </div>
 
       {/* Today's Performance */}
