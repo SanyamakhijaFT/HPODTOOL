@@ -29,6 +29,7 @@ const ControlTower: React.FC = () => {
     supplier: '',
     tripId: '',
     hasRunnerRemarks: false,
+    runnerRemarksType: '',
   });
 
   // Filter trips based on active tab, search query, and filters
@@ -42,6 +43,7 @@ const ControlTower: React.FC = () => {
       trip.vehicleNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trip.foName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trip.route.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      trip.supplyPocName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (trip.owner && trip.owner.toLowerCase().includes(searchQuery.toLowerCase()));
 
     // Advanced filters
@@ -62,6 +64,10 @@ const ControlTower: React.FC = () => {
     const matchesIssues = !filters.hasIssues || trip.issueReported;
     const matchesDNode = !filters.dNode || trip.dNode === filters.dNode;
     const matchesRunnerRemarks = !filters.hasRunnerRemarks || (trip.runnerRemarks && trip.runnerRemarks.length > 0);
+    
+    // Runner remarks type filter
+    const matchesRunnerRemarksType = !filters.runnerRemarksType || 
+      (trip.runnerRemarks && trip.runnerRemarks.some(remark => remark.type === filters.runnerRemarksType));
     
     // Aging filter
     let matchesAging = true;
@@ -86,7 +92,7 @@ const ControlTower: React.FC = () => {
            matchesSupplier && matchesOrigin && matchesDestination && 
            matchesVehicle && matchesRunner && matchesSecondaryRunner && matchesPriority && 
            matchesStatus && matchesOwner && matchesIssues && matchesAging && 
-           matchesDNode && matchesRunnerRemarks;
+           matchesDNode && matchesRunnerRemarks && matchesRunnerRemarksType;
   });
 
   const handleSearch = (query: string) => {
@@ -107,7 +113,7 @@ const ControlTower: React.FC = () => {
   const handleExport = () => {
     // Simulate export functionality
     const csvContent = filteredTrips.map(trip => 
-      `${trip.id},${trip.vehicleNo},${trip.status},${trip.foName},${trip.origin},${trip.destination},${trip.owner || 'Unassigned'},${trip.runner || 'Unassigned'},${trip.slotStatus}`
+      `${trip.id},${trip.vehicleNo},${trip.status},${trip.foName},${trip.origin},${trip.destination},${trip.owner || 'Unassigned'},${trip.runner || 'Unassigned'},${trip.slotStatus},${trip.runnerRemarks?.length || 0}`
     ).join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv' });

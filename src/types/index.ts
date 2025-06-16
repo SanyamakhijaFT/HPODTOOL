@@ -43,6 +43,7 @@ export interface Trip {
   courierDate?: string;
   deliveryDate?: string;
   podImages?: string[];
+  collectedFrom?: string; // New field for who POD was collected from
   issueReported?: {
     type: string;
     description?: string;
@@ -64,6 +65,7 @@ export interface Trip {
   slotImage?: string; // Last image updated by CT team
   supplierImage?: string; // Image that comes with trip data
   runnerRemarks?: {
+    type: string;
     text: string;
     images: string[]; // 2-3 images added by runner
     addedAt: string;
@@ -129,4 +131,5 @@ export interface FilterState {
   supplier: string;
   tripId: string;
   hasRunnerRemarks: boolean;
+  runnerRemarksType: string; // New filter for specific remark types
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, RefreshCw, Download, AlertTriangle, Image as ImageIcon } from 'lucide-react';
+import { Search, Filter, RefreshCw, Download, AlertTriangle, Image as ImageIcon, MessageSquare } from 'lucide-react';
 import { FilterState } from '../../types';
 
 interface SearchAndFiltersProps {
@@ -23,6 +23,20 @@ const slotStatusOptions = [
   { value: 'below_5_days_pending', label: 'Below 5 Days Pending' },
   { value: 'intransit', label: 'Intransit' },
   { value: 'cancelled', label: 'Cancelled' },
+];
+
+const runnerRemarkTypes = [
+  'COLLECTED FROM DRIVER',
+  'COLLECTED FROM SUPPLIER',
+  '(empty)',
+  'ON-SITE',
+  'CRM ENTRY LATE',
+  'COLLECTED FROM PUNE OFFICE',
+  'LATE NIGHT UNLOADED',
+  'INTRANSIT',
+  'WAITING FOR UNLOADING',
+  'COLLECTED FROM CHN OFFICE',
+  'Other',
 ];
 
 const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
@@ -65,6 +79,7 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
       supplier: '',
       tripId: '',
       hasRunnerRemarks: false,
+      runnerRemarksType: '',
     };
     onFilterChange(clearedFilters);
   };
@@ -243,6 +258,23 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
               </select>
             </div>
 
+            {/* Runner Remarks Type Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Runner Remarks Type
+              </label>
+              <select 
+                value={activeFilters.runnerRemarksType}
+                onChange={(e) => handleFilterChange('runnerRemarksType', e.target.value)}
+                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+              >
+                <option value="">All Remark Types</option>
+                {runnerRemarkTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
             {/* Origin */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -293,7 +325,7 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
           </div>
 
           {/* Special Filters */}
-          <div className="flex items-center space-x-6 mb-4">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-4">
             <label className="flex items-center">
               <input
                 type="checkbox"
@@ -312,11 +344,11 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
                 type="checkbox"
                 checked={activeFilters.hasRunnerRemarks}
                 onChange={(e) => handleFilterChange('hasRunnerRemarks', e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
               />
               <div className="ml-2 flex items-center">
-                <ImageIcon className="h-4 w-4 text-blue-600 mr-1" />
-                <span className="text-sm font-medium text-blue-800">Show Only Trips with Runner Remarks</span>
+                <MessageSquare className="h-4 w-4 text-purple-600 mr-1" />
+                <span className="text-sm font-medium text-purple-800">Show Only Trips with Runner Remarks</span>
               </div>
             </label>
           </div>

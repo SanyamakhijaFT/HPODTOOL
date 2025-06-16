@@ -36,7 +36,8 @@ export const mockTrips: Trip[] = [
     supplierImage: 'supplier_001.jpg',
     runnerRemarks: [
       {
-        text: 'Supplier confirmed availability for tomorrow morning',
+        type: 'COLLECTED FROM SUPPLIER',
+        text: 'COLLECTED FROM SUPPLIER',
         images: ['remark_001.jpg', 'remark_002.jpg'],
         addedAt: '2024-01-16T10:30:00Z'
       }
@@ -102,12 +103,14 @@ export const mockTrips: Trip[] = [
     estimatedTime: '3 hours',
     owner: 'Ajay Kumar',
     podImages: ['pod_001.jpg', 'pod_002.jpg'],
+    collectedFrom: 'SUPPLIER',
     slotStatus: 'critical',
     slotImage: 'slot_003.jpg',
     supplierImage: 'supplier_003.jpg',
     runnerRemarks: [
       {
-        text: 'Documents collected successfully. Supplier was cooperative.',
+        type: 'ON-SITE',
+        text: 'ON-SITE',
         images: ['remark_003.jpg', 'remark_004.jpg'],
         addedAt: '2024-01-16T14:20:00Z'
       }
@@ -141,6 +144,7 @@ export const mockTrips: Trip[] = [
     awbNumber: 'BD123456789',
     courierDate: '2024-01-16',
     courierComments: 'Urgent delivery requested by client',
+    collectedFrom: 'DRIVER',
     owner: 'Vijay Singh',
     foOfficeAddress: '654, Corporate Tower, Andheri, Mumbai',
     slotStatus: 'intransit',
@@ -175,6 +179,7 @@ export const mockTrips: Trip[] = [
     courierDate: '2024-01-15',
     deliveryDate: '2024-01-16',
     podImages: ['pod_003.jpg'],
+    collectedFrom: 'SUPPLIER',
     owner: 'Ajay Kumar',
     slotStatus: 'recovered',
     slotImage: 'slot_005.jpg',
@@ -275,7 +280,8 @@ export const mockTrips: Trip[] = [
     supplierImage: 'supplier_008.jpg',
     runnerRemarks: [
       {
-        text: 'Reached location. Waiting for supplier contact.',
+        type: 'WAITING FOR UNLOADING',
+        text: 'WAITING FOR UNLOADING',
         images: ['remark_005.jpg'],
         addedAt: '2024-01-16T09:15:00Z'
       }
@@ -305,6 +311,7 @@ export const mockTrips: Trip[] = [
     priority: 'medium',
     aging: 2,
     podImages: ['pod_004.jpg', 'pod_005.jpg'],
+    collectedFrom: 'DRIVER',
     owner: 'Vijay Singh',
     slotStatus: 'cancelled',
     slotImage: 'slot_009.jpg',
@@ -338,6 +345,7 @@ export const mockTrips: Trip[] = [
     courierDate: '2024-01-16',
     courierComments: 'Express delivery required',
     podImages: ['pod_006.jpg'],
+    collectedFrom: 'SUPPLIER',
     owner: 'Ajay Kumar',
     slotStatus: 'recovered_25_plus',
     slotImage: 'slot_010.jpg',

@@ -51,7 +51,31 @@ const issueTypes = [
   'Traffic/Route Issue',
   'Customer Not Available',
   'Document Missing',
+  'VEHICLE LEFT',
+  'LOCATION IS OUT REACH',
+  'UNLOADING ISSUE',
+  'CANCEL',
+  'RUNNER ISSUE',
   'Other Issue',
+];
+
+const remarkTypes = [
+  'COLLECTED FROM DRIVER',
+  'COLLECTED FROM SUPPLIER',
+  '(empty)',
+  'ON-SITE',
+  'CRM ENTRY LATE',
+  'COLLECTED FROM PUNE OFFICE',
+  'LATE NIGHT UNLOADED',
+  'INTRANSIT',
+  'WAITING FOR UNLOADING',
+  'COLLECTED FROM CHN OFFICE',
+  'Other',
+];
+
+const collectedFromOptions = [
+  'SUPPLIER',
+  'DRIVER',
 ];
 
 const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => {
@@ -61,11 +85,13 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
   const [awbNumber, setAwbNumber] = useState(trip.awbNumber || '');
   const [courierDate, setCourierDate] = useState(trip.courierDate || '');
   const [courierComments, setCourierComments] = useState(trip.courierComments || '');
+  const [collectedFrom, setCollectedFrom] = useState(trip.collectedFrom || '');
   const [showIssueForm, setShowIssueForm] = useState(false);
   const [showUpdateIssueForm, setShowUpdateIssueForm] = useState(false);
   const [showAddRemarkForm, setShowAddRemarkForm] = useState(false);
   const [issueType, setIssueType] = useState('');
   const [issueDescription, setIssueDescription] = useState('');
+  const [remarkType, setRemarkType] = useState('');
   const [remarkText, setRemarkText] = useState('');
   const [remarkImages, setRemarkImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -142,6 +168,10 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
       updates.courierDate = courierDate || new Date().toISOString().split('T')[0];
       updates.courierComments = courierComments;
     }
+
+    if (newStatus === 'pod_collected' && collectedFrom) {
+      updates.collectedFrom = collectedFrom;
+    }
     
     // Ensure POD images are included in the update
     if (uploadedFiles.length > 0) {
@@ -153,13 +183,15 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
   };
 
   const handleAddRemark = async () => {
-    if (!remarkText.trim()) return;
+    const finalRemarkText = remarkType === 'Other' ? remarkText : remarkType;
+    if (!finalRemarkText.trim()) return;
     
     setLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     const newRemark = {
-      text: remarkText,
+      type: remarkType,
+      text: finalRemarkText,
       images: remarkImages,
       addedAt: new Date().toISOString(),
     };
@@ -171,12 +203,14 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
     });
     
     setShowAddRemarkForm(false);
+    setRemarkType('');
     setRemarkText('');
     setRemarkImages([]);
     setLoading(false);
   };
 
   const handleReportIssue = async () => {
+    const finalIssueDescription = issueType === 'Other Issue' ? issueDescription : issueType;
     if (!issueType) return;
     
     setLoading(true);
@@ -185,7 +219,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
     onUpdateTrip(trip.id, {
       issueReported: {
         type: issueType,
-        description: issueDescription,
+        description: finalIssueDescription,
         reportedAt: new Date().toISOString(),
         updates: trip.issueReported?.updates || [],
       }
@@ -273,6 +307,9 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
                   {trip.courierPartner} • {trip.awbNumber}
                   {trip.courierDate && (
                     <div className="text-xs">Date: {new Date(trip.courierDate).toLocaleDateString()}</div>
+                  )}
+                  {trip.collectedFrom && (
+                    <div className="text-xs">Collected from: {trip.collectedFrom}</div>
                   )}
                   {trip.courierComments && (
                     <div className="text-xs mt-1">Comments: {trip.courierComments}</div>
@@ -362,18 +399,20 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Update Description (Optional)
-                  </label>
-                  <textarea
-                    value={issueDescription}
-                    onChange={(e) => setIssueDescription(e.target.value)}
-                    placeholder="Add update about the issue..."
-                    rows={3}
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500 text-sm"
-                  />
-                </div>
+                {issueType === 'Other Issue' && (
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Describe the Issue
+                    </label>
+                    <textarea
+                      value={issueDescription}
+                      onChange={(e) => setIssueDescription(e.target.value)}
+                      placeholder="Describe the issue..."
+                      rows={3}
+                      className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+                    />
+                  </div>
+                )}
 
                 <div className="flex space-x-2">
                   <button
@@ -484,7 +523,9 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
           <div className="space-y-3">
             {trip.runnerRemarks.map((remark, index) => (
               <div key={index} className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-                <div className="text-sm text-purple-800 mb-2">{remark.text}</div>
+                <div className="text-sm text-purple-800 mb-2">
+                  <span className="font-medium">{remark.type}:</span> {remark.text}
+                </div>
                 {remark.images && remark.images.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-2">
                     {remark.images.map((image, imgIndex) => (
@@ -516,16 +557,34 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Remark Text
+                  Remark Type
                 </label>
-                <textarea
-                  value={remarkText}
-                  onChange={(e) => setRemarkText(e.target.value)}
-                  placeholder="Enter your remark..."
-                  rows={3}
+                <select
+                  value={remarkType}
+                  onChange={(e) => setRemarkType(e.target.value)}
                   className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-sm"
-                />
+                >
+                  <option value="">Select remark type</option>
+                  {remarkTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
               </div>
+
+              {remarkType === 'Other' && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Custom Remark
+                  </label>
+                  <textarea
+                    value={remarkText}
+                    onChange={(e) => setRemarkText(e.target.value)}
+                    placeholder="Enter your custom remark..."
+                    rows={3}
+                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-sm"
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -575,7 +634,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
               <div className="flex space-x-2">
                 <button
                   onClick={handleAddRemark}
-                  disabled={!remarkText.trim() || loading}
+                  disabled={!remarkType || (remarkType === 'Other' && !remarkText.trim()) || loading}
                   className="flex-1 flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
                 >
                   {loading ? (
@@ -588,6 +647,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
                 <button
                   onClick={() => {
                     setShowAddRemarkForm(false);
+                    setRemarkType('');
                     setRemarkText('');
                     setRemarkImages([]);
                   }}
@@ -774,6 +834,22 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
                 className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
               />
             </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Collected From *
+              </label>
+              <select
+                value={collectedFrom}
+                onChange={(e) => setCollectedFrom(e.target.value)}
+                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+              >
+                <option value="">Select who you collected from</option>
+                {collectedFromOptions.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
             
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -801,12 +877,12 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
             </div>
           </div>
 
-          {trip.status === 'pod_collected' && (!courierPartner || !awbNumber) && (
+          {trip.status === 'pod_collected' && (!courierPartner || !awbNumber || !collectedFrom) && (
             <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
               <div className="flex">
                 <AlertTriangle className="h-5 w-5 text-yellow-400 mr-2 flex-shrink-0" />
                 <div className="text-sm text-yellow-800">
-                  <strong>Required:</strong> Fill courier partner and AWB number to mark as couriered.
+                  <strong>Required:</strong> Fill courier partner, AWB number, and collected from field to mark as couriered.
                 </div>
               </div>
             </div>
@@ -844,23 +920,25 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
               </select>
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                value={issueDescription}
-                onChange={(e) => setIssueDescription(e.target.value)}
-                placeholder="Please describe the issue in detail..."
-                rows={3}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
-              />
-            </div>
+            {issueType === 'Other Issue' && (
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={issueDescription}
+                  onChange={(e) => setIssueDescription(e.target.value)}
+                  placeholder="Please describe the issue in detail..."
+                  rows={3}
+                  className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 text-sm"
+                />
+              </div>
+            )}
 
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <button
                 onClick={handleReportIssue}
-                disabled={!issueType || loading}
+                disabled={!issueType || (issueType === 'Other Issue' && !issueDescription.trim()) || loading}
                 className="flex-1 flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
               >
                 {loading ? (
