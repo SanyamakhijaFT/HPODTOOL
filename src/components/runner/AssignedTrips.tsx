@@ -200,23 +200,6 @@ const getSlotStatusLabel = (status: string) => {
     'below_5_days_pending': 'Below 5 Days Pending',
     'intransit': 'Intransit',
     'cancelled': 'Cancelled',
-    'collected_from_driver': 'Collected from Driver',
-    'empty': '(empty)',
-    'driver_supplier_issue': 'Driver / Supplier Issue',
-    'couriered': 'Couriered',
-    'vehicle_left': 'Vehicle Left',
-    'collected_from_supplier': 'Collected from Supplier',
-    'location_out_reach': 'Location is Out Reach',
-    'on_site': 'On-Site',
-    'crm_entry_late': 'CRM Entry Late',
-    'collected_from_pune_office': 'Collected from Pune Office',
-    'assigned_to_runner': 'Assigned to Runner',
-    'late_night_unloaded': 'Late Night Unloaded',
-    'waiting_for_unloading': 'Waiting for Unloading',
-    'unloading_issue': 'Unloading Issue',
-    'cancel': 'Cancel',
-    'collected_from_chn_office': 'Collected from CHN Office',
-    'runner_issue': 'Runner Issue',
   };
   return statusMap[status] || status;
 };
@@ -231,8 +214,6 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
   const [imageViewer, setImageViewer] = useState<{ url: string; title: string } | null>(null);
   const [filters, setFilters] = useState<RunnerFilterState>({
     slotStatus: '',
-    supplier: '',
-    tripId: '',
     hasRunnerRemarks: false,
     hasSlotImage: false,
     hasSupplierImage: false,
@@ -250,15 +231,13 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
       trip.supplierAddress.toLowerCase().includes(searchQuery.toLowerCase());
 
     // Filter conditions
-    const matchesTripId = !filters.tripId || trip.id.toLowerCase().includes(filters.tripId.toLowerCase());
     const matchesSlotStatus = !filters.slotStatus || trip.slotStatus === filters.slotStatus;
-    const matchesSupplier = !filters.supplier || trip.supplyPocName.toLowerCase().includes(filters.supplier.toLowerCase());
     const matchesRunnerRemarks = !filters.hasRunnerRemarks || (trip.runnerRemarks && trip.runnerRemarks.length > 0);
     const matchesSlotImage = !filters.hasSlotImage || trip.slotImage;
     const matchesSupplierImage = !filters.hasSupplierImage || trip.supplierImage;
 
-    return isNotDelivered && matchesSearch && matchesTripId && matchesSlotStatus && 
-           matchesSupplier && matchesRunnerRemarks && matchesSlotImage && matchesSupplierImage;
+    return isNotDelivered && matchesSearch && matchesSlotStatus && 
+           matchesRunnerRemarks && matchesSlotImage && matchesSupplierImage;
   });
 
   const handleNavigate = (address: string) => {

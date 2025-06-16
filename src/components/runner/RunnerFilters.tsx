@@ -9,8 +9,6 @@ interface RunnerFiltersProps {
 
 export interface RunnerFilterState {
   slotStatus: string;
-  supplier: string;
-  tripId: string;
   hasRunnerRemarks: boolean;
   hasSlotImage: boolean;
   hasSupplierImage: boolean;
@@ -29,23 +27,6 @@ const slotStatusOptions = [
   { value: 'below_5_days_pending', label: 'Below 5 Days Pending' },
   { value: 'intransit', label: 'Intransit' },
   { value: 'cancelled', label: 'Cancelled' },
-  { value: 'collected_from_driver', label: 'Collected from Driver' },
-  { value: 'empty', label: '(empty)' },
-  { value: 'driver_supplier_issue', label: 'Driver / Supplier Issue' },
-  { value: 'couriered', label: 'Couriered' },
-  { value: 'vehicle_left', label: 'Vehicle Left' },
-  { value: 'collected_from_supplier', label: 'Collected from Supplier' },
-  { value: 'location_out_reach', label: 'Location is Out Reach' },
-  { value: 'on_site', label: 'On-Site' },
-  { value: 'crm_entry_late', label: 'CRM Entry Late' },
-  { value: 'collected_from_pune_office', label: 'Collected from Pune Office' },
-  { value: 'assigned_to_runner', label: 'Assigned to Runner' },
-  { value: 'late_night_unloaded', label: 'Late Night Unloaded' },
-  { value: 'waiting_for_unloading', label: 'Waiting for Unloading' },
-  { value: 'unloading_issue', label: 'Unloading Issue' },
-  { value: 'cancel', label: 'Cancel' },
-  { value: 'collected_from_chn_office', label: 'Collected from CHN Office' },
-  { value: 'runner_issue', label: 'Runner Issue' },
 ];
 
 const RunnerFilters: React.FC<RunnerFiltersProps> = ({
@@ -72,8 +53,6 @@ const RunnerFilters: React.FC<RunnerFiltersProps> = ({
   const clearAllFilters = () => {
     const clearedFilters: RunnerFilterState = {
       slotStatus: '',
-      supplier: '',
-      tripId: '',
       hasRunnerRemarks: false,
       hasSlotImage: false,
       hasSupplierImage: false,
@@ -129,20 +108,6 @@ const RunnerFilters: React.FC<RunnerFiltersProps> = ({
       {showFilters && (
         <div className="mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-            {/* Trip ID Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Trip ID
-              </label>
-              <input
-                type="text"
-                value={activeFilters.tripId}
-                onChange={(e) => handleFilterChange('tripId', e.target.value)}
-                placeholder="Enter Trip ID"
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-              />
-            </div>
-
             {/* Slot Status Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -158,20 +123,6 @@ const RunnerFilters: React.FC<RunnerFiltersProps> = ({
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
-            </div>
-
-            {/* Supplier Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Supplier
-              </label>
-              <input
-                type="text"
-                value={activeFilters.supplier}
-                onChange={(e) => handleFilterChange('supplier', e.target.value)}
-                placeholder="Enter supplier name"
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-              />
             </div>
           </div>
 

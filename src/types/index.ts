@@ -60,7 +60,7 @@ export interface Trip {
   courierComments?: string;
   
   // New fields for filtering
-  slotStatus: 'recovered' | 'onsite' | 'recovered_25_plus' | 'onsite_epod_pending' | 'lost_ibond_submitted' | 'lost_ibond_not_required' | 'lost' | 'critical' | 'below_15_days_pending' | 'below_5_days_pending' | 'intransit' | 'cancelled' | 'collected_from_driver' | 'empty' | 'driver_supplier_issue' | 'couriered' | 'vehicle_left' | 'collected_from_supplier' | 'location_out_reach' | 'on_site' | 'crm_entry_late' | 'collected_from_pune_office' | 'assigned_to_runner' | 'late_night_unloaded' | 'waiting_for_unloading' | 'unloading_issue' | 'cancel' | 'collected_from_chn_office' | 'runner_issue';
+  slotStatus: 'recovered' | 'onsite' | 'recovered_25_plus' | 'onsite_epod_pending' | 'lost_ibond_submitted' | 'lost_ibond_not_required' | 'lost' | 'critical' | 'below_15_days_pending' | 'below_5_days_pending' | 'intransit' | 'cancelled';
   slotImage?: string; // Last image updated by CT team
   supplierImage?: string; // Image that comes with trip data
   runnerRemarks?: {

@@ -23,23 +23,6 @@ const slotStatusOptions = [
   { value: 'below_5_days_pending', label: 'Below 5 Days Pending' },
   { value: 'intransit', label: 'Intransit' },
   { value: 'cancelled', label: 'Cancelled' },
-  { value: 'collected_from_driver', label: 'Collected from Driver' },
-  { value: 'empty', label: '(empty)' },
-  { value: 'driver_supplier_issue', label: 'Driver / Supplier Issue' },
-  { value: 'couriered', label: 'Couriered' },
-  { value: 'vehicle_left', label: 'Vehicle Left' },
-  { value: 'collected_from_supplier', label: 'Collected from Supplier' },
-  { value: 'location_out_reach', label: 'Location is Out Reach' },
-  { value: 'on_site', label: 'On-Site' },
-  { value: 'crm_entry_late', label: 'CRM Entry Late' },
-  { value: 'collected_from_pune_office', label: 'Collected from Pune Office' },
-  { value: 'assigned_to_runner', label: 'Assigned to Runner' },
-  { value: 'late_night_unloaded', label: 'Late Night Unloaded' },
-  { value: 'waiting_for_unloading', label: 'Waiting for Unloading' },
-  { value: 'unloading_issue', label: 'Unloading Issue' },
-  { value: 'cancel', label: 'Cancel' },
-  { value: 'collected_from_chn_office', label: 'Collected from CHN Office' },
-  { value: 'runner_issue', label: 'Runner Issue' },
 ];
 
 const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
@@ -103,7 +86,7 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
             </div>
             <input
               type="text"
-              placeholder="Search by Trip ID, Vehicle No, FO Name, Owner, Route..."
+              placeholder="Search by Trip ID, Vehicle No, FO Name, Owner, Route, Supplier..."
               value={searchQuery}
               onChange={handleSearchChange}
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
@@ -152,20 +135,6 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
       {showFilters && (
         <div className="mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            {/* Trip ID Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Trip ID
-              </label>
-              <input
-                type="text"
-                value={activeFilters.tripId}
-                onChange={(e) => handleFilterChange('tripId', e.target.value)}
-                placeholder="Enter Trip ID"
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-              />
-            </div>
-
             {/* Slot Status Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -181,20 +150,6 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
-            </div>
-
-            {/* Supplier Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Supplier
-              </label>
-              <input
-                type="text"
-                value={activeFilters.supplier}
-                onChange={(e) => handleFilterChange('supplier', e.target.value)}
-                placeholder="Enter supplier name"
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-              />
             </div>
 
             {/* Status Filter */}
@@ -285,6 +240,54 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
                 <option value="high">High</option>
                 <option value="medium">Medium</option>
                 <option value="low">Low</option>
+              </select>
+            </div>
+
+            {/* Origin */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Origin
+              </label>
+              <select 
+                value={activeFilters.origin}
+                onChange={(e) => handleFilterChange('origin', e.target.value)}
+                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+              >
+                <option value="">All Origins</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Bangalore">Bangalore</option>
+                <option value="Chennai">Chennai</option>
+                <option value="Pune">Pune</option>
+                <option value="Kolkata">Kolkata</option>
+                <option value="Ahmedabad">Ahmedabad</option>
+                <option value="Surat">Surat</option>
+                <option value="Jaipur">Jaipur</option>
+                <option value="Lucknow">Lucknow</option>
+              </select>
+            </div>
+
+            {/* Destination */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Destination
+              </label>
+              <select 
+                value={activeFilters.destination}
+                onChange={(e) => handleFilterChange('destination', e.target.value)}
+                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+              >
+                <option value="">All Destinations</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Bangalore">Bangalore</option>
+                <option value="Chennai">Chennai</option>
+                <option value="Pune">Pune</option>
+                <option value="Kolkata">Kolkata</option>
+                <option value="Ahmedabad">Ahmedabad</option>
+                <option value="Surat">Surat</option>
+                <option value="Jaipur">Jaipur</option>
+                <option value="Hyderabad">Hyderabad</option>
               </select>
             </div>
           </div>
