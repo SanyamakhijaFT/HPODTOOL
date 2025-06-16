@@ -110,6 +110,24 @@ const runnerOptions = [
   'Rahul Sharma',
 ];
 
+const getSlotStatusLabel = (status: string) => {
+  const statusMap: { [key: string]: string } = {
+    'recovered': 'Recovered',
+    'onsite': 'Onsite',
+    'recovered_25_plus': 'Recovered >25',
+    'onsite_epod_pending': 'Onsite - EPOD Pending',
+    'lost_ibond_submitted': 'Lost - IBond Submitted',
+    'lost_ibond_not_required': 'Lost - IBond Not Required',
+    'lost': 'Lost',
+    'critical': 'Critical',
+    'below_15_days_pending': 'Below 15 Days Pending',
+    'below_5_days_pending': 'Below 5 Days Pending',
+    'intransit': 'Intransit',
+    'cancelled': 'Cancelled',
+  };
+  return statusMap[status] || status;
+};
+
 const TripTable: React.FC<TripTableProps> = ({
   trips,
   selectedTrips,
@@ -512,6 +530,20 @@ const TripTable: React.FC<TripTableProps> = ({
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${priorityInfo.badge}`}>
                         {trip.priority.charAt(0).toUpperCase() + trip.priority.slice(1)} Priority
                       </span>
+
+                      {/* Slot Status */}
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                        <Package className="h-3 w-3 mr-1" />
+                        {getSlotStatusLabel(trip.slotStatus)}
+                      </span>
+
+                      {/* Runner Remarks Indicator */}
+                      {trip.runnerRemarks && trip.runnerRemarks.length > 0 && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          <MessageSquare className="h-3 w-3 mr-1" />
+                          {trip.runnerRemarks.length} Remark{trip.runnerRemarks.length !== 1 ? 's' : ''}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -666,7 +698,7 @@ const TripTable: React.FC<TripTableProps> = ({
                   
                   <div className="flex items-center text-sm text-gray-600">
                     <User className="h-4 w-4 mr-2 text-gray-400" />
-                    {trip.runner || 'Unassigned'}
+                    FO: {trip.foName}
                   </div>
 
                   <div className="flex items-center text-sm text-gray-600">
@@ -838,6 +870,38 @@ const TripTable: React.FC<TripTableProps> = ({
                     </div>
                   </div>
 
+                  {/* Runner Remarks Section */}
+                  {trip.runnerRemarks && trip.runnerRemarks.length > 0 && (
+                    <div className="mt-6">
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">Runner Remarks</h4>
+                      <div className="space-y-3">
+                        {trip.runnerRemarks.map((remark, index) => (
+                          <div key={index} className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                            <div className="text-sm text-purple-800 mb-2">
+                              <span className="font-medium">{remark.type}:</span> {remark.text}
+                            </div>
+                            {remark.images && remark.images.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mb-2">
+                                {remark.images.map((image, imgIndex) => (
+                                  <span
+                                    key={imgIndex}
+                                    className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700"
+                                  >
+                                    <ImageIcon className="h-3 w-3 mr-1" />
+                                    Image {imgIndex + 1}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            <div className="text-xs text-purple-600">
+                              Added: {new Date(remark.addedAt).toLocaleString()}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Issue Details */}
                   {trip.issueReported && (
                     <div className="mt-6">
@@ -926,6 +990,12 @@ const TripTable: React.FC<TripTableProps> = ({
                             <span className="text-gray-600">Status:</span>
                             <div className="font-medium text-green-600">In Transit</div>
                           </div>
+                          {trip.collectedFrom && (
+                            <div>
+                              <span className="text-gray-600">Collected From:</span>
+                              <div className="font-medium">{trip.collectedFrom}</div>
+                            </div>
+                          )}
                           {trip.courierComments && (
                             <div className="col-span-3">
                               <span className="text-gray-600">Comments:</span>

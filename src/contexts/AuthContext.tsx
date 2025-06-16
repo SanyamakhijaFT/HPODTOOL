@@ -35,12 +35,6 @@ const mockUsers: User[] = [
     zone: 'South Delhi',
     city: 'Delhi',
   },
-  {
-    id: '4',
-    email: 'audit@freighttiger.com',
-    name: 'Audit Team',
-    role: 'auditor',
-  },
 ];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

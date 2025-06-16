@@ -167,6 +167,23 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
               </select>
             </div>
 
+            {/* Remark Type Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Remark Type
+              </label>
+              <select 
+                value={activeFilters.runnerRemarksType}
+                onChange={(e) => handleFilterChange('runnerRemarksType', e.target.value)}
+                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+              >
+                <option value="">All Remark Types</option>
+                {runnerRemarkTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
             {/* Status Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -255,23 +272,6 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
                 <option value="high">High</option>
                 <option value="medium">Medium</option>
                 <option value="low">Low</option>
-              </select>
-            </div>
-
-            {/* Runner Remarks Type Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Runner Remarks Type
-              </label>
-              <select 
-                value={activeFilters.runnerRemarksType}
-                onChange={(e) => handleFilterChange('runnerRemarksType', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-              >
-                <option value="">All Remark Types</option>
-                {runnerRemarkTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
               </select>
             </div>
 
