@@ -2,7 +2,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'control_tower' | 'runner' | 'auditor';
+  role: 'control_tower' | 'runner';
   phone?: string;
   zone?: string;
   city?: string;
@@ -31,6 +31,8 @@ export interface Trip {
   driverPhone?: string;
   runner?: string;
   runnerId?: string;
+  secondaryRunner?: string;
+  secondaryRunnerId?: string;
   priority: 'high' | 'medium' | 'low';
   aging: number;
   distance?: number;
@@ -56,6 +58,16 @@ export interface Trip {
   owner?: string;
   foOfficeAddress?: string;
   courierComments?: string;
+  
+  // New fields for filtering
+  slotStatus: 'recovered' | 'onsite' | 'recovered_25_plus' | 'onsite_epod_pending' | 'lost_ibond_submitted' | 'lost_ibond_not_required' | 'lost' | 'critical' | 'below_15_days_pending' | 'below_5_days_pending' | 'intransit' | 'cancelled' | 'collected_from_driver' | 'empty' | 'driver_supplier_issue' | 'couriered' | 'vehicle_left' | 'collected_from_supplier' | 'location_out_reach' | 'on_site' | 'crm_entry_late' | 'collected_from_pune_office' | 'assigned_to_runner' | 'late_night_unloaded' | 'waiting_for_unloading' | 'unloading_issue' | 'cancel' | 'collected_from_chn_office' | 'runner_issue';
+  slotImage?: string; // Last image updated by CT team
+  supplierImage?: string; // Image that comes with trip data
+  runnerRemarks?: {
+    text: string;
+    images: string[]; // 2-3 images added by runner
+    addedAt: string;
+  }[];
 }
 
 export interface FOResponse {
@@ -70,29 +82,6 @@ export interface FOResponse {
   status: 'pending_verification' | 'verified' | 'rejected';
   verifiedBy?: string;
   verificationNotes?: string;
-}
-
-export interface PODAudit {
-  id: string;
-  tripId: string;
-  vehicleNo: string;
-  foName: string;
-  courierPartner: string;
-  awbNumber: string;
-  receivedDate: string;
-  status: 'pending_audit' | 'under_review' | 'audit_complete';
-  priority: 'high' | 'medium' | 'low';
-  runner: string;
-  documents: {
-    name: string;
-    type: string;
-    size: string;
-  }[];
-  auditResult?: {
-    status: 'clean' | 'unclean' | 'partial';
-    deductionAmount?: number;
-    notes: string;
-  };
 }
 
 export interface Stats {
@@ -122,4 +111,22 @@ export interface RunnerProfile {
     successRate: number;
   };
   gpsActive: boolean;
+}
+
+export interface FilterState {
+  origin: string;
+  destination: string;
+  vehicle: string;
+  runner: string;
+  secondaryRunner: string;
+  priority: string;
+  status: string;
+  owner: string;
+  hasIssues: boolean;
+  aging: string;
+  dNode: string;
+  slotStatus: string;
+  supplier: string;
+  tripId: string;
+  hasRunnerRemarks: boolean;
 }

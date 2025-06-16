@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { 
   Home, 
   Truck, 
-  Shield, 
   Bell, 
   Settings, 
   LogOut,
@@ -27,15 +26,10 @@ const Layout: React.FC = () => {
         return [
           { name: 'Control Tower', href: '/', icon: Home },
           { name: 'FO Responses', href: '/fo-responses', icon: MessageCircle },
-          { name: 'Audit Queue', href: '/audit', icon: Shield },
         ];
       case 'runner':
         return [
           { name: 'My Trips', href: '/runner', icon: Truck },
-        ];
-      case 'auditor':
-        return [
-          { name: 'Audit Queue', href: '/audit', icon: Shield },
         ];
       default:
         return [];

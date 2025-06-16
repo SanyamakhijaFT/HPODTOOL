@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { RefreshCw } from 'lucide-react';
 import StatsCards from '../components/dashboard/StatsCards';
 import TripTabs from '../components/dashboard/TripTabs';
-import SearchAndFilters, { FilterState } from '../components/dashboard/SearchAndFilters';
+import SearchAndFilters from '../components/dashboard/SearchAndFilters';
 import TripTable from '../components/dashboard/TripTable';
 import { mockTrips, mockStats } from '../data/mockData';
-import { Trip } from '../types';
+import { Trip, FilterState } from '../types';
 
 const ControlTower: React.FC = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -18,12 +18,17 @@ const ControlTower: React.FC = () => {
     destination: '',
     vehicle: '',
     runner: '',
+    secondaryRunner: '',
     priority: '',
     status: '',
     owner: '',
     hasIssues: false,
     aging: '',
     dNode: '',
+    slotStatus: '',
+    supplier: '',
+    tripId: '',
+    hasRunnerRemarks: false,
   });
 
   // Filter trips based on active tab, search query, and filters
@@ -40,17 +45,23 @@ const ControlTower: React.FC = () => {
       (trip.owner && trip.owner.toLowerCase().includes(searchQuery.toLowerCase()));
 
     // Advanced filters
+    const matchesTripId = !filters.tripId || trip.id.toLowerCase().includes(filters.tripId.toLowerCase());
+    const matchesSlotStatus = !filters.slotStatus || trip.slotStatus === filters.slotStatus;
+    const matchesSupplier = !filters.supplier || trip.supplyPocName.toLowerCase().includes(filters.supplier.toLowerCase());
     const matchesOrigin = !filters.origin || trip.origin === filters.origin;
     const matchesDestination = !filters.destination || trip.destination === filters.destination;
     const matchesVehicle = !filters.vehicle || trip.vehicleNo.toLowerCase().includes(filters.vehicle.toLowerCase());
     const matchesRunner = !filters.runner || 
       (filters.runner === 'Unassigned' ? !trip.runner : trip.runner === filters.runner);
+    const matchesSecondaryRunner = !filters.secondaryRunner || 
+      (filters.secondaryRunner === 'Unassigned' ? !trip.secondaryRunner : trip.secondaryRunner === filters.secondaryRunner);
     const matchesPriority = !filters.priority || trip.priority === filters.priority;
     const matchesStatus = !filters.status || trip.status === filters.status;
     const matchesOwner = !filters.owner || 
       (filters.owner === 'Unassigned' ? !trip.owner : trip.owner === filters.owner);
     const matchesIssues = !filters.hasIssues || trip.issueReported;
     const matchesDNode = !filters.dNode || trip.dNode === filters.dNode;
+    const matchesRunnerRemarks = !filters.hasRunnerRemarks || (trip.runnerRemarks && trip.runnerRemarks.length > 0);
     
     // Aging filter
     let matchesAging = true;
@@ -71,9 +82,11 @@ const ControlTower: React.FC = () => {
       }
     }
 
-    return matchesTab && matchesSearch && matchesOrigin && matchesDestination && 
-           matchesVehicle && matchesRunner && matchesPriority && 
-           matchesStatus && matchesOwner && matchesIssues && matchesAging && matchesDNode;
+    return matchesTab && matchesSearch && matchesTripId && matchesSlotStatus && 
+           matchesSupplier && matchesOrigin && matchesDestination && 
+           matchesVehicle && matchesRunner && matchesSecondaryRunner && matchesPriority && 
+           matchesStatus && matchesOwner && matchesIssues && matchesAging && 
+           matchesDNode && matchesRunnerRemarks;
   });
 
   const handleSearch = (query: string) => {
@@ -94,7 +107,7 @@ const ControlTower: React.FC = () => {
   const handleExport = () => {
     // Simulate export functionality
     const csvContent = filteredTrips.map(trip => 
-      `${trip.id},${trip.vehicleNo},${trip.status},${trip.foName},${trip.origin},${trip.destination},${trip.owner || 'Unassigned'},${trip.runner || 'Unassigned'}`
+      `${trip.id},${trip.vehicleNo},${trip.status},${trip.foName},${trip.origin},${trip.destination},${trip.owner || 'Unassigned'},${trip.runner || 'Unassigned'},${trip.slotStatus}`
     ).join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv' });

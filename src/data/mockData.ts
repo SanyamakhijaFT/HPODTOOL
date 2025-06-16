@@ -1,4 +1,4 @@
-import { Trip, PODAudit, Stats, RunnerProfile, FOResponse } from '../types';
+import { Trip, Stats, RunnerProfile, FOResponse } from '../types';
 
 export const mockTrips: Trip[] = [
   // Lokesh Kumar (runnerId: '2') trips - Various statuses for testing
@@ -31,6 +31,16 @@ export const mockTrips: Trip[] = [
     estimatedTime: '2 hours',
     owner: 'Ajay Kumar',
     foOfficeAddress: '456, Business Center, Connaught Place, Delhi',
+    slotStatus: 'assigned_to_runner',
+    slotImage: 'slot_001.jpg',
+    supplierImage: 'supplier_001.jpg',
+    runnerRemarks: [
+      {
+        text: 'Supplier confirmed availability for tomorrow morning',
+        images: ['remark_001.jpg', 'remark_002.jpg'],
+        addedAt: '2024-01-16T10:30:00Z'
+      }
+    ]
   },
   {
     id: 'TRP002',
@@ -53,12 +63,17 @@ export const mockTrips: Trip[] = [
     driverPhone: '+91-9876543251',
     runner: 'Lokesh Kumar',
     runnerId: '2',
+    secondaryRunner: 'Arjun Singh',
+    secondaryRunnerId: '3',
     priority: 'medium',
     aging: 2,
     distance: 18,
     estimatedTime: '1.5 hours',
     owner: 'Vijay Singh',
     foOfficeAddress: '789, IT Hub, Whitefield, Bangalore',
+    slotStatus: 'onsite',
+    slotImage: 'slot_002.jpg',
+    supplierImage: 'supplier_002.jpg',
   },
   {
     id: 'TRP003',
@@ -87,6 +102,16 @@ export const mockTrips: Trip[] = [
     estimatedTime: '3 hours',
     owner: 'Ajay Kumar',
     podImages: ['pod_001.jpg', 'pod_002.jpg'],
+    slotStatus: 'collected_from_supplier',
+    slotImage: 'slot_003.jpg',
+    supplierImage: 'supplier_003.jpg',
+    runnerRemarks: [
+      {
+        text: 'Documents collected successfully. Supplier was cooperative.',
+        images: ['remark_003.jpg', 'remark_004.jpg'],
+        addedAt: '2024-01-16T14:20:00Z'
+      }
+    ]
   },
   {
     id: 'TRP004',
@@ -118,6 +143,9 @@ export const mockTrips: Trip[] = [
     courierComments: 'Urgent delivery requested by client',
     owner: 'Vijay Singh',
     foOfficeAddress: '654, Corporate Tower, Andheri, Mumbai',
+    slotStatus: 'couriered',
+    slotImage: 'slot_004.jpg',
+    supplierImage: 'supplier_004.jpg',
   },
   {
     id: 'TRP005',
@@ -148,6 +176,9 @@ export const mockTrips: Trip[] = [
     deliveryDate: '2024-01-16',
     podImages: ['pod_003.jpg'],
     owner: 'Ajay Kumar',
+    slotStatus: 'recovered',
+    slotImage: 'slot_005.jpg',
+    supplierImage: 'supplier_005.jpg',
   },
   {
     id: 'TRP006',
@@ -179,6 +210,9 @@ export const mockTrips: Trip[] = [
       description: 'FO not responding to calls since morning',
       reportedAt: '2024-01-15T10:30:00Z',
     },
+    slotStatus: 'driver_supplier_issue',
+    slotImage: 'slot_006.jpg',
+    supplierImage: 'supplier_006.jpg',
   },
 
   // Arjun Singh (runnerId: '3') trips - Various statuses for testing
@@ -207,6 +241,9 @@ export const mockTrips: Trip[] = [
     aging: 1,
     distance: 28,
     estimatedTime: '2.5 hours',
+    slotStatus: 'assigned_to_runner',
+    slotImage: 'slot_007.jpg',
+    supplierImage: 'supplier_007.jpg',
   },
   {
     id: 'TRP008',
@@ -233,6 +270,16 @@ export const mockTrips: Trip[] = [
     aging: 3,
     owner: 'Ajay Kumar',
     foOfficeAddress: '369, Hazratganj, Lucknow',
+    slotStatus: 'onsite',
+    slotImage: 'slot_008.jpg',
+    supplierImage: 'supplier_008.jpg',
+    runnerRemarks: [
+      {
+        text: 'Reached location. Waiting for supplier contact.',
+        images: ['remark_005.jpg'],
+        addedAt: '2024-01-16T09:15:00Z'
+      }
+    ]
   },
   {
     id: 'TRP009',
@@ -259,6 +306,9 @@ export const mockTrips: Trip[] = [
     aging: 2,
     podImages: ['pod_004.jpg', 'pod_005.jpg'],
     owner: 'Vijay Singh',
+    slotStatus: 'collected_from_supplier',
+    slotImage: 'slot_009.jpg',
+    supplierImage: 'supplier_009.jpg',
   },
   {
     id: 'TRP010',
@@ -289,6 +339,9 @@ export const mockTrips: Trip[] = [
     courierComments: 'Express delivery required',
     podImages: ['pod_006.jpg'],
     owner: 'Ajay Kumar',
+    slotStatus: 'couriered',
+    slotImage: 'slot_010.jpg',
+    supplierImage: 'supplier_010.jpg',
   },
 
   // Unassigned trips for Control Tower
@@ -315,6 +368,9 @@ export const mockTrips: Trip[] = [
     aging: 1,
     distance: 28,
     estimatedTime: '2.5 hours',
+    slotStatus: 'waiting_for_unloading',
+    slotImage: 'slot_011.jpg',
+    supplierImage: 'supplier_011.jpg',
   },
   {
     id: 'TRP012',
@@ -339,6 +395,9 @@ export const mockTrips: Trip[] = [
     aging: 2,
     distance: 35,
     estimatedTime: '3 hours',
+    slotStatus: 'critical',
+    slotImage: 'slot_012.jpg',
+    supplierImage: 'supplier_012.jpg',
   },
 ];
 
@@ -477,40 +536,6 @@ export const mockStats: Stats[] = [
     icon: 'AlertTriangle',
     color: 'red',
     description: 'Requires attention',
-  },
-];
-
-export const mockPODs: PODAudit[] = [
-  {
-    id: 'POD001',
-    tripId: 'TRP004',
-    vehicleNo: 'TN-09-DD-3456',
-    foName: 'Meera Joshi',
-    courierPartner: 'Blue Dart',
-    awbNumber: 'BD123456789',
-    receivedDate: '2024-01-16',
-    status: 'pending_audit',
-    priority: 'high',
-    runner: 'Lokesh Kumar',
-    documents: [
-      { name: 'POD_001.jpg', type: 'image/jpeg', size: '2.5 MB' },
-      { name: 'LR_Copy.pdf', type: 'application/pdf', size: '1.2 MB' },
-    ],
-  },
-  {
-    id: 'POD002',
-    tripId: 'TRP005',
-    vehicleNo: 'WB-04-EE-7890',
-    foName: 'Vikram Gupta',
-    courierPartner: 'DTDC',
-    awbNumber: 'DT987654321',
-    receivedDate: '2024-01-15',
-    status: 'under_review',
-    priority: 'medium',
-    runner: 'Arjun Singh',
-    documents: [
-      { name: 'POD_002.jpg', type: 'image/jpeg', size: '3.1 MB' },
-    ],
   },
 ];
 

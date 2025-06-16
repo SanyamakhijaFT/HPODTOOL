@@ -6,7 +6,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ControlTower from './pages/ControlTower';
 import FOResponses from './pages/FOResponses';
 import RunnerDashboard from './pages/RunnerDashboard';
-import AuditWorkflow from './pages/AuditWorkflow';
 import TripDetails from './pages/TripDetails';
 
 function AppRoutes() {
@@ -31,8 +30,6 @@ function AppRoutes() {
         return '/';
       case 'runner':
         return '/runner';
-      case 'auditor':
-        return '/audit';
       default:
         return '/';
     }
@@ -63,14 +60,6 @@ function AppRoutes() {
           element={
             <ProtectedRoute allowedRoles={['runner']}>
               <RunnerDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="audit"
-          element={
-            <ProtectedRoute allowedRoles={['control_tower', 'auditor']}>
-              <AuditWorkflow />
             </ProtectedRoute>
           }
         />
