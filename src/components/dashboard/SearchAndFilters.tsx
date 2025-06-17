@@ -36,6 +36,7 @@ const runnerRemarkTypes = [
   'INTRANSIT',
   'WAITING FOR UNLOADING',
   'COLLECTED FROM CHN OFFICE',
+  'FO COURIERED',
   'Other',
 ];
 
@@ -170,7 +171,7 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
             {/* Remark Type Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Remark Type
+                Runner Remarks
               </label>
               <select 
                 value={activeFilters.runnerRemarksType}
@@ -320,6 +321,46 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
                 <option value="Surat">Surat</option>
                 <option value="Jaipur">Jaipur</option>
                 <option value="Hyderabad">Hyderabad</option>
+              </select>
+            </div>
+
+            {/* D Node */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                D Node (Cluster)
+              </label>
+              <select 
+                value={activeFilters.dNode}
+                onChange={(e) => handleFilterChange('dNode', e.target.value)}
+                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+              >
+                <option value="">All Clusters</option>
+                <option value="Delhi North Cluster">Delhi North Cluster</option>
+                <option value="Delhi South Cluster">Delhi South Cluster</option>
+                <option value="Delhi Central Cluster">Delhi Central Cluster</option>
+                <option value="Mumbai West Cluster">Mumbai West Cluster</option>
+                <option value="Mumbai Central Cluster">Mumbai Central Cluster</option>
+                <option value="Bangalore South Cluster">Bangalore South Cluster</option>
+                <option value="Hyderabad Central Cluster">Hyderabad Central Cluster</option>
+                <option value="Jaipur East Cluster">Jaipur East Cluster</option>
+              </select>
+            </div>
+
+            {/* Aging */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Aging
+              </label>
+              <select 
+                value={activeFilters.aging}
+                onChange={(e) => handleFilterChange('aging', e.target.value)}
+                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+              >
+                <option value="">All Ages</option>
+                <option value="0-1">0-1 days</option>
+                <option value="2-3">2-3 days</option>
+                <option value="4-7">4-7 days</option>
+                <option value="7+">7+ days (Overdue)</option>
               </select>
             </div>
           </div>

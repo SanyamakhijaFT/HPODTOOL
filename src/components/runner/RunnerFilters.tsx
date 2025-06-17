@@ -10,6 +10,7 @@ interface RunnerFiltersProps {
 export interface RunnerFilterState {
   slotStatus: string;
   hasRunnerRemarks: boolean;
+  runnerRemarksType: string;
 }
 
 const slotStatusOptions = [
@@ -25,6 +26,21 @@ const slotStatusOptions = [
   { value: 'below_5_days_pending', label: 'Below 5 Days Pending' },
   { value: 'intransit', label: 'Intransit' },
   { value: 'cancelled', label: 'Cancelled' },
+];
+
+const runnerRemarkTypes = [
+  'COLLECTED FROM DRIVER',
+  'COLLECTED FROM SUPPLIER',
+  '(empty)',
+  'ON-SITE',
+  'CRM ENTRY LATE',
+  'COLLECTED FROM PUNE OFFICE',
+  'LATE NIGHT UNLOADED',
+  'INTRANSIT',
+  'WAITING FOR UNLOADING',
+  'COLLECTED FROM CHN OFFICE',
+  'FO COURIERED',
+  'Other',
 ];
 
 const RunnerFilters: React.FC<RunnerFiltersProps> = ({
@@ -52,6 +68,7 @@ const RunnerFilters: React.FC<RunnerFiltersProps> = ({
     const clearedFilters: RunnerFilterState = {
       slotStatus: '',
       hasRunnerRemarks: false,
+      runnerRemarksType: '',
     };
     onFilterChange(clearedFilters);
   };
@@ -117,6 +134,23 @@ const RunnerFilters: React.FC<RunnerFiltersProps> = ({
                 <option value="">All Slot Status</option>
                 {slotStatusOptions.map(option => (
                   <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Runner Remarks Type Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Remark Type
+              </label>
+              <select 
+                value={activeFilters.runnerRemarksType}
+                onChange={(e) => handleFilterChange('runnerRemarksType', e.target.value)}
+                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+              >
+                <option value="">All Remark Types</option>
+                {runnerRemarkTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
                 ))}
               </select>
             </div>

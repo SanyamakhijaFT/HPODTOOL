@@ -175,6 +175,7 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
   const [filters, setFilters] = useState<RunnerFilterState>({
     slotStatus: '',
     hasRunnerRemarks: false,
+    runnerRemarksType: '',
   });
 
   // Filter trips - only show assigned trips (not delivered) and apply filters
@@ -191,8 +192,12 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
     // Filter conditions
     const matchesSlotStatus = !filters.slotStatus || trip.slotStatus === filters.slotStatus;
     const matchesRunnerRemarks = !filters.hasRunnerRemarks || (trip.runnerRemarks && trip.runnerRemarks.length > 0);
+    
+    // Runner remarks type filter
+    const matchesRunnerRemarksType = !filters.runnerRemarksType || 
+      (trip.runnerRemarks && trip.runnerRemarks.some(remark => remark.type === filters.runnerRemarksType));
 
-    return isNotDelivered && matchesSearch && matchesSlotStatus && matchesRunnerRemarks;
+    return isNotDelivered && matchesSearch && matchesSlotStatus && matchesRunnerRemarks && matchesRunnerRemarksType;
   });
 
   const handleNavigate = (address: string) => {
