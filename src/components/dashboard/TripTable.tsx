@@ -83,12 +83,6 @@ const statusConfig = {
   },
 };
 
-const priorityConfig = {
-  high: { color: 'border-red-500', badge: 'bg-red-100 text-red-800' },
-  medium: { color: 'border-yellow-500', badge: 'bg-yellow-100 text-yellow-800' },
-  low: { color: 'border-green-500', badge: 'bg-green-100 text-green-800' },
-};
-
 const courierOptions = [
   'Blue Dart',
   'DTDC',
@@ -364,16 +358,13 @@ const TripTable: React.FC<TripTableProps> = ({
           const isEditingRunnerForTrip = editingRunner === trip.id;
           const isEditingAddressForTrip = editingAddress === trip.id;
           const statusInfo = statusConfig[trip.status];
-          const priorityInfo = priorityConfig[trip.priority];
           const StatusIcon = statusInfo.icon;
           const currentUpdates = statusUpdates[trip.id];
 
           return (
             <div
               key={trip.id}
-              className={`px-6 py-4 ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'} ${
-                priorityInfo.color
-              } border-l-4`}
+              className={`px-6 py-4 ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'} border-l-4 border-l-gray-300`}
             >
               {/* Card Header */}
               <div className="flex items-center justify-between">
@@ -526,13 +517,6 @@ const TripTable: React.FC<TripTableProps> = ({
                           {trip.runnerRemarks.length} Remark{trip.runnerRemarks.length !== 1 ? 's' : ''}
                         </span>
                       )}
-                      
-                      {trip.aging > 3 && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                          <AlertTriangle className="h-3 w-3 mr-1" />
-                          {trip.aging} days overdue
-                        </span>
-                      )}
 
                       {trip.issueReported && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -540,10 +524,6 @@ const TripTable: React.FC<TripTableProps> = ({
                           Issue Reported
                         </span>
                       )}
-                      
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${priorityInfo.badge}`}>
-                        {trip.priority.charAt(0).toUpperCase() + trip.priority.slice(1)} Priority
-                      </span>
                     </div>
                   </div>
                 </div>

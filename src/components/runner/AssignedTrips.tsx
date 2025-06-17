@@ -140,12 +140,6 @@ const statusConfig = {
   },
 };
 
-const priorityConfig = {
-  high: { color: 'border-l-red-500', badge: 'bg-red-100 text-red-800' },
-  medium: { color: 'border-l-yellow-500', badge: 'bg-yellow-100 text-yellow-800' },
-  low: { color: 'border-l-green-500', badge: 'bg-green-100 text-green-800' },
-};
-
 const getSlotStatusLabel = (status: string) => {
   const statusMap: { [key: string]: string } = {
     'recovered': 'Recovered',
@@ -270,11 +264,10 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
             {filteredTrips.map((trip) => {
               const isExpanded = expandedTrip === trip.id;
               const statusInfo = statusConfig[trip.status as keyof typeof statusConfig];
-              const priorityInfo = priorityConfig[trip.priority];
               const StatusIcon = statusInfo?.icon || User;
 
               return (
-                <div key={trip.id} className={`border-l-4 ${priorityInfo.color} transition-all duration-200 hover:bg-gray-50`}>
+                <div key={trip.id} className="transition-all duration-200 hover:bg-gray-50">
                   <div
                     className="p-4 cursor-pointer"
                     onClick={() => toggleExpanded(trip.id)}
@@ -285,9 +278,6 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
                         <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-3">
                           <h4 className="text-lg font-bold text-gray-900">{trip.id}</h4>
                           <span className="text-sm text-gray-600 mt-1 sm:mt-0">{trip.vehicleNo}</span>
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-1 sm:mt-0 ${priorityInfo.badge}`}>
-                            {trip.priority.charAt(0).toUpperCase() + trip.priority.slice(1)} Priority
-                          </span>
                         </div>
                         
                         {/* Trip Details Grid */}
@@ -325,14 +315,6 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                               <MessageSquare className="h-3 w-3 mr-1" />
                               {trip.runnerRemarks.length} Remark{trip.runnerRemarks.length !== 1 ? 's' : ''}
-                            </span>
-                          )}
-
-                          {/* Aging Warning */}
-                          {trip.aging > 2 && (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                              <AlertTriangle className="h-3 w-3 mr-1" />
-                              {trip.aging} days old
                             </span>
                           )}
                         </div>
