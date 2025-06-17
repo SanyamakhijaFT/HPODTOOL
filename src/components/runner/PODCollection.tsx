@@ -42,6 +42,13 @@ const courierOptions = [
   'Other',
 ];
 
+const headquartersOptions = [
+  'Delhi',
+  'Bengaluru',
+  'Mumbai',
+  'Chennai',
+];
+
 const issueTypes = [
   'FO Unavailable',
   'Address Not Found',
@@ -86,6 +93,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
   const [awbNumber, setAwbNumber] = useState(trip.awbNumber || '');
   const [courierDate, setCourierDate] = useState(trip.courierDate || '');
   const [courierComments, setCourierComments] = useState(trip.courierComments || '');
+  const [headquarters, setHeadquarters] = useState('');
   const [collectedFrom, setCollectedFrom] = useState(trip.collectedFrom || '');
   const [showIssueForm, setShowIssueForm] = useState(false);
   const [showUpdateIssueForm, setShowUpdateIssueForm] = useState(false);
@@ -346,7 +354,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
   };
 
   const canMarkCollected = trip.status === 'in_progress' && uploadedFiles.length > 0;
-  const canMarkCouriered = trip.status === 'pod_collected' && courierPartner && awbNumber && collectedFrom;
+  const canMarkCouriered = trip.status === 'pod_collected' && courierPartner && awbNumber && collectedFrom && headquarters;
 
   if (trip.status === 'couriered') {
     return (
@@ -1008,6 +1016,22 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
 
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
+                Headquarters *
+              </label>
+              <select
+                value={headquarters}
+                onChange={(e) => setHeadquarters(e.target.value)}
+                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+              >
+                <option value="">Select headquarters</option>
+                {headquartersOptions.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
                 Collected From *
               </label>
               <select
@@ -1048,12 +1072,12 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
             </div>
           </div>
 
-          {trip.status === 'pod_collected' && (!courierPartner || !awbNumber || !collectedFrom) && (
+          {trip.status === 'pod_collected' && (!courierPartner || !awbNumber || !collectedFrom || !headquarters) && (
             <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
               <div className="flex">
                 <AlertTriangle className="h-5 w-5 text-yellow-400 mr-2 flex-shrink-0" />
                 <div className="text-sm text-yellow-800">
-                  <strong>Required:</strong> Fill courier partner, AWB number, and collected from field to mark as couriered.
+                  <strong>Required:</strong> Fill courier partner, AWB number, headquarters, and collected from field to mark as couriered.
                 </div>
               </div>
             </div>

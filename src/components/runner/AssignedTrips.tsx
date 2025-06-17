@@ -69,7 +69,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ trip, onClose }) => {
           <div className="border-b border-gray-200 pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium text-gray-900">Supply POC: {trip.supplyPocName}</div>
+                <div className="text-sm font-medium text-gray-900">LSP: {trip.supplyPocName}</div>
                 <div className="text-xs text-gray-500">{trip.supplyPocPhone}</div>
               </div>
               <button
@@ -186,6 +186,7 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
     const matchesSearch = !searchQuery || 
       trip.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trip.vehicleNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      trip.foName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trip.supplyPocName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trip.supplierAddress.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -273,7 +274,11 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
                         <div className="space-y-1 text-xs text-gray-600">
                           <div className="flex items-center">
                             <User className="h-3 w-3 mr-1 flex-shrink-0" />
-                            <span className="truncate">Supply POC: {trip.supplyPocName}</span>
+                            <span className="truncate">FO: {trip.foName}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Building className="h-3 w-3 mr-1 flex-shrink-0" />
+                            <span className="truncate">LSP: {trip.supplyPocName}</span>
                           </div>
                           <div className="flex items-center">
                             <Building className="h-3 w-3 mr-1 flex-shrink-0" />
