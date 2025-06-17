@@ -104,6 +104,21 @@ const runnerOptions = [
   'Rahul Sharma',
 ];
 
+const slotStatusOptions = [
+  { value: 'recovered', label: 'Recovered' },
+  { value: 'onsite', label: 'Onsite' },
+  { value: 'recovered_25_plus', label: 'Recovered >25' },
+  { value: 'onsite_epod_pending', label: 'Onsite - EPOD Pending' },
+  { value: 'lost_ibond_submitted', label: 'Lost - IBond Submitted' },
+  { value: 'lost_ibond_not_required', label: 'Lost - IBond Not Required' },
+  { value: 'lost', label: 'Lost' },
+  { value: 'critical', label: 'Critical' },
+  { value: 'below_15_days_pending', label: 'Below 15 Days Pending' },
+  { value: 'below_5_days_pending', label: 'Below 5 Days Pending' },
+  { value: 'intransit', label: 'Intransit' },
+  { value: 'cancelled', label: 'Cancelled' },
+];
+
 const getSlotStatusLabel = (status: string) => {
   const statusMap: { [key: string]: string } = {
     'recovered': 'Recovered',
@@ -122,6 +137,24 @@ const getSlotStatusLabel = (status: string) => {
   return statusMap[status] || status;
 };
 
+const getSlotStatusColor = (status: string) => {
+  const colorMap: { [key: string]: string } = {
+    'recovered': 'bg-green-100 text-green-800',
+    'onsite': 'bg-blue-100 text-blue-800',
+    'recovered_25_plus': 'bg-emerald-100 text-emerald-800',
+    'onsite_epod_pending': 'bg-cyan-100 text-cyan-800',
+    'lost_ibond_submitted': 'bg-red-100 text-red-800',
+    'lost_ibond_not_required': 'bg-orange-100 text-orange-800',
+    'lost': 'bg-red-100 text-red-800',
+    'critical': 'bg-red-100 text-red-800',
+    'below_15_days_pending': 'bg-yellow-100 text-yellow-800',
+    'below_5_days_pending': 'bg-yellow-100 text-yellow-800',
+    'intransit': 'bg-indigo-100 text-indigo-800',
+    'cancelled': 'bg-gray-100 text-gray-800',
+  };
+  return colorMap[status] || 'bg-gray-100 text-gray-800';
+};
+
 const TripTable: React.FC<TripTableProps> = ({
   trips,
   selectedTrips,
@@ -134,6 +167,7 @@ const TripTable: React.FC<TripTableProps> = ({
   const [editingOwner, setEditingOwner] = useState<string | null>(null);
   const [editingRunner, setEditingRunner] = useState<string | null>(null);
   const [editingAddress, setEditingAddress] = useState<string | null>(null);
+  const [editingSlotStatus, setEditingSlotStatus] = useState<string | null>(null);
   const [addressValue, setAddressValue] = useState<string>('');
   const [statusUpdates, setStatusUpdates] = useState<{[key: string]: any}>({});
 
@@ -192,11 +226,16 @@ const TripTable: React.FC<TripTableProps> = ({
     setAddressValue(currentAddress || '');
   };
 
+  const startEditingSlotStatus = (tripId: string) => {
+    setEditingSlotStatus(tripId);
+  };
+
   const cancelEditing = () => {
     setEditingStatus(null);
     setEditingOwner(null);
     setEditingRunner(null);
     setEditingAddress(null);
+    setEditingSlotStatus(null);
     setAddressValue('');
     setStatusUpdates({});
   };
@@ -294,6 +333,12 @@ const TripTable: React.FC<TripTableProps> = ({
     setAddressValue('');
   };
 
+  const saveSlotStatusUpdate = async (tripId: string, newSlotStatus: string) => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    onUpdateTrip(tripId, { slotStatus: newSlotStatus as Trip['slotStatus'] });
+    setEditingSlotStatus(null);
+  };
+
   if (trips.length === 0) {
     return (
       <div className="bg-white shadow rounded-lg p-12 text-center">
@@ -357,6 +402,7 @@ const TripTable: React.FC<TripTableProps> = ({
           const isEditingOwnerForTrip = editingOwner === trip.id;
           const isEditingRunnerForTrip = editingRunner === trip.id;
           const isEditingAddressForTrip = editingAddress === trip.id;
+          const isEditingSlotStatusForTrip = editingSlotStatus === trip.id;
           const statusInfo = statusConfig[trip.status];
           const StatusIcon = statusInfo.icon;
           const currentUpdates = statusUpdates[trip.id];
@@ -505,10 +551,39 @@ const TripTable: React.FC<TripTableProps> = ({
                       )}
 
                       {/* Slot Status */}
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                        <Package className="h-3 w-3 mr-1" />
-                        {getSlotStatusLabel(trip.slotStatus)}
-                      </span>
+                      {isEditingSlotStatusForTrip ? (
+                        <div className="flex items-center space-x-2">
+                          <select
+                            defaultValue={trip.slotStatus}
+                            onChange={(e) => saveSlotStatusUpdate(trip.id, e.target.value)}
+                            className="text-xs border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                          >
+                            {slotStatusOptions.map(option => (
+                              <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                          </select>
+                          <button
+                            onClick={() => setEditingSlotStatus(null)}
+                            className="p-1 text-red-600 hover:text-red-800"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSlotStatusColor(trip.slotStatus)}`}>
+                            <Package className="h-3 w-3 mr-1" />
+                            {getSlotStatusLabel(trip.slotStatus)}
+                          </span>
+                          <button
+                            onClick={() => startEditingSlotStatus(trip.id)}
+                            className="p-1 text-gray-400 hover:text-gray-600"
+                            title="Edit Slot Status"
+                          >
+                            <Edit3 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
 
                       {/* Runner Remarks Indicator */}
                       {trip.runnerRemarks && trip.runnerRemarks.length > 0 && (
