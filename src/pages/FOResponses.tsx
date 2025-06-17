@@ -12,7 +12,8 @@ import {
   Package,
   Calendar,
   FileText,
-  Loader2
+  Loader2,
+  UserCheck
 } from 'lucide-react';
 import { mockFOResponses } from '../data/mockData';
 import { FOResponse } from '../types';
@@ -40,6 +41,7 @@ const FOResponses: React.FC = () => {
   const [selectedResponse, setSelectedResponse] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [submittedByFilter, setSubmittedByFilter] = useState('');
   const [loading, setLoading] = useState(false);
 
   const filteredResponses = responses.filter((response) => {
@@ -50,8 +52,9 @@ const FOResponses: React.FC = () => {
       response.docketNumber.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = !statusFilter || response.status === statusFilter;
+    const matchesSubmittedBy = !submittedByFilter || response.submittedBy === submittedByFilter;
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesSubmittedBy;
   });
 
   const selectedResponseData = responses.find(r => r.id === selectedResponse);
@@ -85,7 +88,7 @@ const FOResponses: React.FC = () => {
 
   const handleExport = () => {
     const csvContent = filteredResponses.map(response => 
-      `${response.tripId},${response.foName},${response.courierService},${response.docketNumber},${response.status},${new Date(response.submittedAt).toLocaleDateString()}`
+      `${response.tripId},${response.foName},${response.courierService},${response.docketNumber},${response.status},${response.submittedBy || 'FO'},${new Date(response.submittedAt).toLocaleDateString()}`
     ).join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -104,7 +107,7 @@ const FOResponses: React.FC = () => {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">FO Responses</h1>
-        <p className="text-gray-600">Review and verify courier information submitted by Field Officers</p>
+        <p className="text-gray-600">Review and verify courier information submitted by Field Officers and Runners</p>
       </div>
 
       {/* Search and Filters */}
@@ -137,6 +140,19 @@ const FOResponses: React.FC = () => {
               <option value="pending_verification">Pending Verification</option>
               <option value="verified">Verified</option>
               <option value="rejected">Rejected</option>
+            </select>
+          </div>
+
+          {/* Submitted By Filter */}
+          <div className="w-48">
+            <select
+              value={submittedByFilter}
+              onChange={(e) => setSubmittedByFilter(e.target.value)}
+              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+            >
+              <option value="">All Sources</option>
+              <option value="runner">Submitted by Runner</option>
+              <option value="">Submitted by FO</option>
             </select>
           </div>
 
@@ -200,6 +216,12 @@ const FOResponses: React.FC = () => {
                         <div className="flex items-center space-x-3 mb-2">
                           <h4 className="text-sm font-semibold text-gray-900">{response.tripId}</h4>
                           <span className="text-xs text-gray-600">{response.foName}</span>
+                          {response.submittedBy === 'runner' && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              <UserCheck className="h-3 w-3 mr-1" />
+                              Runner
+                            </span>
+                          )}
                         </div>
                         
                         <div className="space-y-1 text-xs text-gray-600">
@@ -301,9 +323,17 @@ const ResponseDetails: React.FC<ResponseDetailsProps> = ({ response, onVerify, l
 
   return (
     <div className="p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-6">
-        Response Details - {response.tripId}
-      </h3>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-semibold text-gray-900">
+          Response Details - {response.tripId}
+        </h3>
+        {response.submittedBy === 'runner' && (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+            <UserCheck className="h-4 w-4 mr-1" />
+            Submitted by Runner
+          </span>
+        )}
+      </div>
 
       {/* Response Information */}
       <div className="space-y-4 mb-6">

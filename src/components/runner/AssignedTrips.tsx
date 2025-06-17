@@ -14,9 +14,7 @@ import {
   Building,
   ChevronDown,
   ChevronUp,
-  Image as ImageIcon,
   MessageSquare,
-  Eye
 } from 'lucide-react';
 import { Trip } from '../../types';
 import PODCollection from './PODCollection';
@@ -31,43 +29,6 @@ interface ContactModalProps {
   trip: Trip;
   onClose: () => void;
 }
-
-interface ImageViewerModalProps {
-  imageUrl: string;
-  title: string;
-  onClose: () => void;
-}
-
-const ImageViewerModal: React.FC<ImageViewerModalProps> = ({ imageUrl, title, onClose }) => {
-  return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-10 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        
-        <div className="text-center">
-          <img 
-            src={`/images/${imageUrl}`} 
-            alt={title}
-            className="max-w-full max-h-96 mx-auto rounded-lg shadow-md"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIE5vdCBGb3VuZDwvdGV4dD48L3N2Zz4=';
-            }}
-          />
-          <p className="mt-2 text-sm text-gray-600">Click outside to close</p>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const ContactModal: React.FC<ContactModalProps> = ({ trip, onClose }) => {
   const handleCall = (phone: string) => {
@@ -211,12 +172,9 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
   const [showContactModal, setShowContactModal] = useState<string | null>(null);
   const [expandedTrip, setExpandedTrip] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [imageViewer, setImageViewer] = useState<{ url: string; title: string } | null>(null);
   const [filters, setFilters] = useState<RunnerFilterState>({
     slotStatus: '',
     hasRunnerRemarks: false,
-    hasSlotImage: false,
-    hasSupplierImage: false,
   });
 
   // Filter trips - only show assigned trips (not delivered) and apply filters
@@ -233,11 +191,8 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
     // Filter conditions
     const matchesSlotStatus = !filters.slotStatus || trip.slotStatus === filters.slotStatus;
     const matchesRunnerRemarks = !filters.hasRunnerRemarks || (trip.runnerRemarks && trip.runnerRemarks.length > 0);
-    const matchesSlotImage = !filters.hasSlotImage || trip.slotImage;
-    const matchesSupplierImage = !filters.hasSupplierImage || trip.supplierImage;
 
-    return isNotDelivered && matchesSearch && matchesSlotStatus && 
-           matchesRunnerRemarks && matchesSlotImage && matchesSupplierImage;
+    return isNotDelivered && matchesSearch && matchesSlotStatus && matchesRunnerRemarks;
   });
 
   const handleNavigate = (address: string) => {
@@ -247,10 +202,6 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
 
   const toggleExpanded = (tripId: string) => {
     setExpandedTrip(expandedTrip === tripId ? null : tripId);
-  };
-
-  const handleViewImage = (imageUrl: string, title: string) => {
-    setImageViewer({ url: imageUrl, title });
   };
 
   if (filteredTrips.length === 0) {
@@ -341,32 +292,8 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
                           )}
                         </div>
 
-                        {/* Image and Remarks Indicators */}
+                        {/* Remarks Indicator */}
                         <div className="flex items-center space-x-2 mt-2">
-                          {trip.slotImage && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleViewImage(trip.slotImage!, `Slot Image - ${trip.id}`);
-                              }}
-                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200"
-                            >
-                              <ImageIcon className="h-3 w-3 mr-1" />
-                              Slot
-                            </button>
-                          )}
-                          {trip.supplierImage && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleViewImage(trip.supplierImage!, `Supplier Image - ${trip.id}`);
-                              }}
-                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200"
-                            >
-                              <ImageIcon className="h-3 w-3 mr-1" />
-                              Supplier
-                            </button>
-                          )}
                           {trip.runnerRemarks && trip.runnerRemarks.length > 0 && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                               <MessageSquare className="h-3 w-3 mr-1" />
@@ -459,15 +386,6 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
         <ContactModal
           trip={filteredTrips.find(t => t.id === showContactModal)!}
           onClose={() => setShowContactModal(null)}
-        />
-      )}
-
-      {/* Image Viewer Modal */}
-      {imageViewer && (
-        <ImageViewerModal
-          imageUrl={imageViewer.url}
-          title={imageViewer.title}
-          onClose={() => setImageViewer(null)}
         />
       )}
     </>

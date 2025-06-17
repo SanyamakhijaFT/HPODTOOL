@@ -70,6 +70,7 @@ export interface Trip {
     images: string[]; // 2-3 images added by runner
     addedAt: string;
   }[];
+  foResponse?: any; // For FO courier responses submitted by runner
 }
 
 export interface FOResponse {
@@ -84,6 +85,7 @@ export interface FOResponse {
   status: 'pending_verification' | 'verified' | 'rejected';
   verifiedBy?: string;
   verificationNotes?: string;
+  submittedBy?: string; // 'runner' flag for responses submitted by runners
 }
 
 export interface Stats {

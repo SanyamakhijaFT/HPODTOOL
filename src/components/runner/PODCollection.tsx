@@ -15,10 +15,10 @@ import {
   Save,
   RefreshCw,
   MessageSquare,
-  Eye,
   Plus,
+  Send,
 } from 'lucide-react';
-import { Trip } from '../../types';
+import { Trip, FOResponse } from '../../types';
 
 interface PODCollectionProps {
   trip: Trip;
@@ -70,6 +70,7 @@ const remarkTypes = [
   'INTRANSIT',
   'WAITING FOR UNLOADING',
   'COLLECTED FROM CHN OFFICE',
+  'FO COURIERED',
   'Other',
 ];
 
@@ -89,11 +90,20 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
   const [showIssueForm, setShowIssueForm] = useState(false);
   const [showUpdateIssueForm, setShowUpdateIssueForm] = useState(false);
   const [showAddRemarkForm, setShowAddRemarkForm] = useState(false);
+  const [showFOCourierForm, setShowFOCourierForm] = useState(false);
   const [issueType, setIssueType] = useState('');
   const [issueDescription, setIssueDescription] = useState('');
   const [remarkType, setRemarkType] = useState('');
   const [remarkText, setRemarkText] = useState('');
   const [remarkImages, setRemarkImages] = useState<string[]>([]);
+  
+  // FO Courier form states
+  const [foCourierService, setFOCourierService] = useState('');
+  const [foDocketNumber, setFODocketNumber] = useState('');
+  const [foName, setFOName] = useState(trip.foName);
+  const [foPhone, setFOPhone] = useState(trip.foPhone);
+  const [foCourierComments, setFOCourierComments] = useState('');
+  
   const [loading, setLoading] = useState(false);
 
   const currentStepIndex = statusSteps.findIndex(step => step.key === trip.status);
@@ -209,6 +219,54 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
     setLoading(false);
   };
 
+  const handleSubmitFOCourier = async () => {
+    if (!foCourierService || !foDocketNumber) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Create FO Response entry
+    const foResponse: Partial<FOResponse> = {
+      id: `FOR_${Date.now()}`,
+      tripId: trip.id,
+      foName: foName,
+      foPhone: foPhone,
+      courierService: foCourierService,
+      docketNumber: foDocketNumber,
+      remarks: foCourierComments,
+      submittedAt: new Date().toISOString(),
+      status: 'pending_verification',
+      submittedBy: 'runner', // Special flag to indicate this was submitted by runner
+    };
+
+    // Add FO COURIERED remark
+    const newRemark = {
+      type: 'FO COURIERED',
+      text: `FO has couriered via ${foCourierService} - Docket: ${foDocketNumber}`,
+      images: [],
+      addedAt: new Date().toISOString(),
+    };
+
+    const updatedRemarks = [...(trip.runnerRemarks || []), newRemark];
+    
+    onUpdateTrip(trip.id, {
+      runnerRemarks: updatedRemarks,
+      foResponse: foResponse // This will be sent to CT team
+    });
+
+    // Reset form
+    setShowFOCourierForm(false);
+    setFOCourierService('');
+    setFODocketNumber('');
+    setFOCourierComments('');
+    setLoading(false);
+
+    alert('FO courier information has been sent to the Control Tower team for verification.');
+  };
+
   const handleReportIssue = async () => {
     const finalIssueDescription = issueType === 'Other Issue' ? issueDescription : issueType;
     if (!issueType) return;
@@ -288,7 +346,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
   };
 
   const canMarkCollected = trip.status === 'in_progress' && uploadedFiles.length > 0;
-  const canMarkCouriered = trip.status === 'pod_collected' && courierPartner && awbNumber;
+  const canMarkCouriered = trip.status === 'pod_collected' && courierPartner && awbNumber && collectedFrom;
 
   if (trip.status === 'couriered') {
     return (
@@ -402,12 +460,12 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
                 {issueType === 'Other Issue' && (
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Describe the Issue
+                      Update Description
                     </label>
                     <textarea
                       value={issueDescription}
                       onChange={(e) => setIssueDescription(e.target.value)}
-                      placeholder="Describe the issue..."
+                      placeholder="Add update about the issue..."
                       rows={3}
                       className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500 text-sm"
                     />
@@ -561,7 +619,12 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
                 </label>
                 <select
                   value={remarkType}
-                  onChange={(e) => setRemarkType(e.target.value)}
+                  onChange={(e) => {
+                    setRemarkType(e.target.value);
+                    if (e.target.value === 'FO COURIERED') {
+                      setShowFOCourierForm(true);
+                    }
+                  }}
                   className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-sm"
                 >
                   <option value="">Select remark type</option>
@@ -586,70 +649,178 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
                 </div>
               )}
 
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Images (Max 3)
-                </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
-                  <div className="text-center">
-                    <Upload className="mx-auto h-6 w-6 text-gray-400" />
-                    <div className="mt-1">
-                      <label htmlFor="remark-upload" className="cursor-pointer">
-                        <span className="text-xs font-medium text-purple-600 hover:text-purple-500">
-                          Upload Images
-                        </span>
-                        <input
-                          id="remark-upload"
-                          type="file"
-                          className="sr-only"
-                          multiple
-                          accept="image/*"
-                          onChange={handleRemarkImageUpload}
-                        />
-                      </label>
+              {remarkType !== 'FO COURIERED' && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Images (Max 3)
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
+                    <div className="text-center">
+                      <Upload className="mx-auto h-6 w-6 text-gray-400" />
+                      <div className="mt-1">
+                        <label htmlFor="remark-upload" className="cursor-pointer">
+                          <span className="text-xs font-medium text-purple-600 hover:text-purple-500">
+                            Upload Images
+                          </span>
+                          <input
+                            id="remark-upload"
+                            type="file"
+                            className="sr-only"
+                            multiple
+                            accept="image/*"
+                            onChange={handleRemarkImageUpload}
+                          />
+                        </label>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {remarkImages.length > 0 && (
-                  <div className="mt-2 space-y-1">
-                    {remarkImages.map((image, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <div className="flex items-center">
-                          <ImageIcon className="h-4 w-4 text-gray-400 mr-2" />
-                          <span className="text-sm text-gray-700">{image}</span>
+                  {remarkImages.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {remarkImages.map((image, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                          <div className="flex items-center">
+                            <ImageIcon className="h-4 w-4 text-gray-400 mr-2" />
+                            <span className="text-sm text-gray-700">{image}</span>
+                          </div>
+                          <button
+                            onClick={() => handleRemoveRemarkImage(image)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
                         </div>
-                        <button
-                          onClick={() => handleRemoveRemarkImage(image)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {remarkType !== 'FO COURIERED' && (
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleAddRemark}
+                    disabled={!remarkType || (remarkType === 'Other' && !remarkText.trim()) || loading}
+                    className="flex-1 flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                    ) : (
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                    )}
+                    {loading ? 'Adding...' : 'Add Remark'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowAddRemarkForm(false);
+                      setRemarkType('');
+                      setRemarkText('');
+                      setRemarkImages([]);
+                    }}
+                    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* FO Courier Form */}
+        {showFOCourierForm && (
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h5 className="text-sm font-medium text-blue-900 mb-3">FO Courier Details</h5>
+            
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    FO Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={foName}
+                    onChange={(e) => setFOName(e.target.value)}
+                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    FO Phone *
+                  </label>
+                  <input
+                    type="text"
+                    value={foPhone}
+                    onChange={(e) => setFOPhone(e.target.value)}
+                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Courier Service *
+                </label>
+                <select
+                  value={foCourierService}
+                  onChange={(e) => setFOCourierService(e.target.value)}
+                  className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                >
+                  <option value="">Select courier service</option>
+                  {courierOptions.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Docket Number *
+                </label>
+                <input
+                  type="text"
+                  value={foDocketNumber}
+                  onChange={(e) => setFODocketNumber(e.target.value)}
+                  placeholder="Enter docket/AWB number"
+                  className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Comments (Optional)
+                </label>
+                <textarea
+                  value={foCourierComments}
+                  onChange={(e) => setFOCourierComments(e.target.value)}
+                  placeholder="Any additional comments..."
+                  rows={3}
+                  className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                />
               </div>
 
               <div className="flex space-x-2">
                 <button
-                  onClick={handleAddRemark}
-                  disabled={!remarkType || (remarkType === 'Other' && !remarkText.trim()) || loading}
-                  className="flex-1 flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
+                  onClick={handleSubmitFOCourier}
+                  disabled={!foCourierService || !foDocketNumber || loading}
+                  className="flex-1 flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                 >
                   {loading ? (
                     <Loader2 className="animate-spin h-4 w-4 mr-2" />
                   ) : (
-                    <MessageSquare className="h-4 w-4 mr-2" />
+                    <Send className="h-4 w-4 mr-2" />
                   )}
-                  {loading ? 'Adding...' : 'Add Remark'}
+                  {loading ? 'Submitting...' : 'Submit to CT Team'}
                 </button>
                 <button
                   onClick={() => {
+                    setShowFOCourierForm(false);
                     setShowAddRemarkForm(false);
                     setRemarkType('');
-                    setRemarkText('');
-                    setRemarkImages([]);
+                    setFOCourierService('');
+                    setFODocketNumber('');
+                    setFOCourierComments('');
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                 >

@@ -512,6 +512,20 @@ const TripTable: React.FC<TripTableProps> = ({
                           </button>
                         </div>
                       )}
+
+                      {/* Slot Status */}
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                        <Package className="h-3 w-3 mr-1" />
+                        {getSlotStatusLabel(trip.slotStatus)}
+                      </span>
+
+                      {/* Runner Remarks Indicator */}
+                      {trip.runnerRemarks && trip.runnerRemarks.length > 0 && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          <MessageSquare className="h-3 w-3 mr-1" />
+                          {trip.runnerRemarks.length} Remark{trip.runnerRemarks.length !== 1 ? 's' : ''}
+                        </span>
+                      )}
                       
                       {trip.aging > 3 && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -530,20 +544,6 @@ const TripTable: React.FC<TripTableProps> = ({
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${priorityInfo.badge}`}>
                         {trip.priority.charAt(0).toUpperCase() + trip.priority.slice(1)} Priority
                       </span>
-
-                      {/* Slot Status */}
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                        <Package className="h-3 w-3 mr-1" />
-                        {getSlotStatusLabel(trip.slotStatus)}
-                      </span>
-
-                      {/* Runner Remarks Indicator */}
-                      {trip.runnerRemarks && trip.runnerRemarks.length > 0 && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          <MessageSquare className="h-3 w-3 mr-1" />
-                          {trip.runnerRemarks.length} Remark{trip.runnerRemarks.length !== 1 ? 's' : ''}
-                        </span>
-                      )}
                     </div>
                   </div>
                 </div>

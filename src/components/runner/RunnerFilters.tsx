@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Image as ImageIcon, MessageSquare, X } from 'lucide-react';
+import { Search, Filter, MessageSquare } from 'lucide-react';
 
 interface RunnerFiltersProps {
   onSearch: (query: string) => void;
@@ -10,8 +10,6 @@ interface RunnerFiltersProps {
 export interface RunnerFilterState {
   slotStatus: string;
   hasRunnerRemarks: boolean;
-  hasSlotImage: boolean;
-  hasSupplierImage: boolean;
 }
 
 const slotStatusOptions = [
@@ -54,8 +52,6 @@ const RunnerFilters: React.FC<RunnerFiltersProps> = ({
     const clearedFilters: RunnerFilterState = {
       slotStatus: '',
       hasRunnerRemarks: false,
-      hasSlotImage: false,
-      hasSupplierImage: false,
     };
     onFilterChange(clearedFilters);
   };
@@ -126,34 +122,8 @@ const RunnerFilters: React.FC<RunnerFiltersProps> = ({
             </div>
           </div>
 
-          {/* Image and Remarks Filters */}
+          {/* Remarks Filter */}
           <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-4">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={activeFilters.hasSlotImage}
-                onChange={(e) => handleFilterChange('hasSlotImage', e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <div className="ml-2 flex items-center">
-                <ImageIcon className="h-4 w-4 text-blue-600 mr-1" />
-                <span className="text-sm font-medium text-blue-800">Has Slot Image</span>
-              </div>
-            </label>
-
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={activeFilters.hasSupplierImage}
-                onChange={(e) => handleFilterChange('hasSupplierImage', e.target.checked)}
-                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-              />
-              <div className="ml-2 flex items-center">
-                <ImageIcon className="h-4 w-4 text-green-600 mr-1" />
-                <span className="text-sm font-medium text-green-800">Has Supplier Image</span>
-              </div>
-            </label>
-
             <label className="flex items-center">
               <input
                 type="checkbox"
