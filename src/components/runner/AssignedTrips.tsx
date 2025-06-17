@@ -15,6 +15,8 @@ import {
   ChevronDown,
   ChevronUp,
   MessageSquare,
+  MapPin,
+  FileText,
 } from 'lucide-react';
 import { Trip } from '../../types';
 import PODCollection from './PODCollection';
@@ -36,74 +38,71 @@ const ContactModal: React.FC<ContactModalProps> = ({ trip, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-md shadow-lg rounded-md bg-white">
-        <div className="flex items-center justify-between mb-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
         
-        <div className="space-y-4">
+        <div className="p-4 space-y-4">
           {/* FO Contact */}
-          <div className="border-b border-gray-200 pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-gray-900">FO: {trip.foName}</div>
-                <div className="text-xs text-gray-500">{trip.foPhone}</div>
-              </div>
-              <button
-                onClick={() => handleCall(trip.foPhone)}
-                className="p-2 text-blue-600 hover:text-blue-800"
-              >
-                <Phone className="h-4 w-4" />
-              </button>
+          <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+            <div className="flex-1">
+              <div className="text-sm font-medium text-blue-900">Field Officer</div>
+              <div className="text-blue-800 font-semibold">{trip.foName}</div>
+              <div className="text-xs text-blue-600">{trip.foPhone}</div>
             </div>
+            <button
+              onClick={() => handleCall(trip.foPhone)}
+              className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Phone className="h-4 w-4" />
+            </button>
           </div>
 
-          {/* Supply POC */}
-          <div className="border-b border-gray-200 pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-gray-900">LSP: {trip.supplyPocName}</div>
-                <div className="text-xs text-gray-500">{trip.supplyPocPhone}</div>
-              </div>
-              <button
-                onClick={() => handleCall(trip.supplyPocPhone)}
-                className="p-2 text-blue-600 hover:text-blue-800"
-              >
-                <Phone className="h-4 w-4" />
-              </button>
+          {/* LSP Contact */}
+          <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+            <div className="flex-1">
+              <div className="text-sm font-medium text-green-900">LSP Contact</div>
+              <div className="text-green-800 font-semibold">{trip.supplyPocName}</div>
+              <div className="text-xs text-green-600">{trip.supplyPocPhone}</div>
             </div>
+            <button
+              onClick={() => handleCall(trip.supplyPocPhone)}
+              className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Phone className="h-4 w-4" />
+            </button>
           </div>
 
           {/* Driver Contact */}
           {trip.driverPhone && (
-            <div className="border-b border-gray-200 pb-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium text-gray-900">Driver: {trip.driverName || 'Driver'}</div>
-                  <div className="text-xs text-gray-500">{trip.driverPhone}</div>
-                </div>
-                <button
-                  onClick={() => handleCall(trip.driverPhone!)}
-                  className="p-2 text-blue-600 hover:text-blue-800"
-                >
-                  <Phone className="h-4 w-4" />
-                </button>
+            <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+              <div className="flex-1">
+                <div className="text-sm font-medium text-orange-900">Driver</div>
+                <div className="text-orange-800 font-semibold">{trip.driverName || 'Driver'}</div>
+                <div className="text-xs text-orange-600">{trip.driverPhone}</div>
               </div>
+              <button
+                onClick={() => handleCall(trip.driverPhone!)}
+                className="p-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+              >
+                <Phone className="h-4 w-4" />
+              </button>
             </div>
           )}
         </div>
 
-        <div className="mt-6">
+        <div className="p-4 border-t border-gray-200">
           <button
             onClick={onClose}
-            className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
           >
             Close
           </button>
@@ -165,6 +164,24 @@ const getSlotStatusLabel = (status: string) => {
   return statusMap[status] || status;
 };
 
+const getSlotStatusColor = (status: string) => {
+  const colorMap: { [key: string]: string } = {
+    'recovered': 'bg-green-100 text-green-800',
+    'onsite': 'bg-blue-100 text-blue-800',
+    'recovered_25_plus': 'bg-emerald-100 text-emerald-800',
+    'onsite_epod_pending': 'bg-cyan-100 text-cyan-800',
+    'lost_ibond_submitted': 'bg-red-100 text-red-800',
+    'lost_ibond_not_required': 'bg-orange-100 text-orange-800',
+    'lost': 'bg-red-100 text-red-800',
+    'critical': 'bg-red-100 text-red-800',
+    'below_15_days_pending': 'bg-yellow-100 text-yellow-800',
+    'below_5_days_pending': 'bg-yellow-100 text-yellow-800',
+    'intransit': 'bg-indigo-100 text-indigo-800',
+    'cancelled': 'bg-gray-100 text-gray-800',
+  };
+  return colorMap[status] || 'bg-gray-100 text-gray-800';
+};
+
 const AssignedTrips: React.FC<AssignedTripsProps> = ({
   trips,
   onUpdateTrip,
@@ -219,14 +236,10 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
           activeFilters={filters}
         />
         
-        <div className="bg-white shadow rounded-lg p-6 sm:p-8 text-center">
-          <Package className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">
-            No trips found
-          </h3>
-          <p className="mt-1 text-sm text-gray-500">
-            No trips match your current filters or search criteria.
-          </p>
+        <div className="bg-white shadow-lg rounded-xl p-8 text-center">
+          <Package className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No trips found</h3>
+          <p className="text-gray-500">No trips match your current filters or search criteria.</p>
         </div>
       </div>
     );
@@ -241,14 +254,19 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
           activeFilters={filters}
         />
 
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
-              My Trips ({filteredTrips.length})
-            </h3>
+        <div className="bg-white shadow-lg rounded-xl overflow-hidden">
+          <div className="px-4 sm:px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">
+                My Active Trips
+              </h3>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                {filteredTrips.length} trip{filteredTrips.length !== 1 ? 's' : ''}
+              </span>
+            </div>
           </div>
           
-          <div className="divide-y divide-gray-200 max-h-80 sm:max-h-96 overflow-y-auto">
+          <div className="divide-y divide-gray-100">
             {filteredTrips.map((trip) => {
               const isExpanded = expandedTrip === trip.id;
               const statusInfo = statusConfig[trip.status as keyof typeof statusConfig];
@@ -256,87 +274,95 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
               const StatusIcon = statusInfo?.icon || User;
 
               return (
-                <div key={trip.id} className={`border-l-4 ${priorityInfo.color}`}>
+                <div key={trip.id} className={`border-l-4 ${priorityInfo.color} transition-all duration-200 hover:bg-gray-50`}>
                   <div
-                    className="p-3 sm:p-4 cursor-pointer transition-colors hover:bg-gray-50"
+                    className="p-4 cursor-pointer"
                     onClick={() => toggleExpanded(trip.id)}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-2">
-                          <h4 className="text-sm font-semibold text-gray-900">{trip.id}</h4>
-                          <span className="text-xs text-gray-600 mt-1 sm:mt-0">{trip.vehicleNo}</span>
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1 sm:mt-0 ${priorityInfo.badge}`}>
-                            {trip.priority.charAt(0).toUpperCase() + trip.priority.slice(1)}
+                        {/* Trip Header */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-3">
+                          <h4 className="text-lg font-bold text-gray-900">{trip.id}</h4>
+                          <span className="text-sm text-gray-600 mt-1 sm:mt-0">{trip.vehicleNo}</span>
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-1 sm:mt-0 ${priorityInfo.badge}`}>
+                            {trip.priority.charAt(0).toUpperCase() + trip.priority.slice(1)} Priority
                           </span>
                         </div>
                         
-                        <div className="space-y-1 text-xs text-gray-600">
-                          <div className="flex items-center">
-                            <User className="h-3 w-3 mr-1 flex-shrink-0" />
-                            <span className="truncate">FO: {trip.foName}</span>
+                        {/* Trip Details Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                          <div className="flex items-center text-gray-600">
+                            <User className="h-4 w-4 mr-2 text-blue-500 flex-shrink-0" />
+                            <span className="truncate"><strong>FO:</strong> {trip.foName}</span>
                           </div>
-                          <div className="flex items-center">
-                            <Building className="h-3 w-3 mr-1 flex-shrink-0" />
-                            <span className="truncate">LSP: {trip.supplyPocName}</span>
+                          <div className="flex items-center text-gray-600">
+                            <Building className="h-4 w-4 mr-2 text-green-500 flex-shrink-0" />
+                            <span className="truncate"><strong>LSP:</strong> {trip.supplyPocName}</span>
                           </div>
-                          <div className="flex items-center">
-                            <Building className="h-3 w-3 mr-1 flex-shrink-0" />
+                          <div className="flex items-center text-gray-600">
+                            <MapPin className="h-4 w-4 mr-2 text-orange-500 flex-shrink-0" />
                             <span className={`truncate ${trip.supplierAddress ? 'text-green-600' : 'text-red-600'}`}>
-                              {trip.supplierAddress ? 'Supplier Address Set' : 'No Supplier Address'}
+                              {trip.supplierAddress ? 'Address Available' : 'No Address'}
                             </span>
                           </div>
-                          <div className="flex items-center">
-                            <Package className="h-3 w-3 mr-1 flex-shrink-0" />
-                            <span className="truncate">Slot: {getSlotStatusLabel(trip.slotStatus)}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
+                          <div className="flex items-center text-gray-600">
+                            <Calendar className="h-4 w-4 mr-2 text-purple-500 flex-shrink-0" />
                             <span>Unloaded: {new Date(trip.unloadDate).toLocaleDateString()}</span>
                           </div>
-                          {trip.aging > 2 && (
-                            <div className="flex items-center text-red-600">
-                              <AlertTriangle className="h-3 w-3 mr-1 flex-shrink-0" />
-                              <span>{trip.aging} days old</span>
-                            </div>
-                          )}
                         </div>
 
-                        {/* Remarks Indicator */}
-                        <div className="flex items-center space-x-2 mt-2">
+                        {/* Status Badges */}
+                        <div className="flex flex-wrap items-center gap-2 mt-3">
+                          {/* Slot Status */}
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getSlotStatusColor(trip.slotStatus)}`}>
+                            <Package className="h-3 w-3 mr-1" />
+                            {getSlotStatusLabel(trip.slotStatus)}
+                          </span>
+
+                          {/* Remarks Indicator */}
                           {trip.runnerRemarks && trip.runnerRemarks.length > 0 && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                               <MessageSquare className="h-3 w-3 mr-1" />
                               {trip.runnerRemarks.length} Remark{trip.runnerRemarks.length !== 1 ? 's' : ''}
                             </span>
                           )}
+
+                          {/* Aging Warning */}
+                          {trip.aging > 2 && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                              <AlertTriangle className="h-3 w-3 mr-1" />
+                              {trip.aging} days old
+                            </span>
+                          )}
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-end space-y-2 ml-2">
-                        {/* Only show status badge if no issue is reported */}
+                      <div className="flex flex-col items-end space-y-2 ml-4">
+                        {/* Status Badge */}
                         {!trip.issueReported && statusInfo && (
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${statusInfo.color}`}>
-                            <StatusIcon className="h-3 w-3 mr-1" />
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${statusInfo.color}`}>
+                            <StatusIcon className="h-4 w-4 mr-1" />
                             {statusInfo.label}
                           </span>
                         )}
 
-                        {/* Show issue indicator if issue is reported */}
+                        {/* Issue Indicator */}
                         {trip.issueReported && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
-                            <AlertTriangle className="h-3 w-3 mr-1" />
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 border border-red-200">
+                            <AlertTriangle className="h-4 w-4 mr-1" />
                             Issue Reported
                           </span>
                         )}
 
-                        <div className="flex items-center space-x-1">
+                        {/* Action Buttons */}
+                        <div className="flex items-center space-x-2">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               setShowContactModal(trip.id);
                             }}
-                            className="p-1 text-gray-400 hover:text-gray-600"
+                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             title="Contact Info"
                           >
                             <Users className="h-4 w-4" />
@@ -346,12 +372,12 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
                               e.stopPropagation();
                               handleNavigate(trip.supplierAddress);
                             }}
-                            className="p-1 text-gray-400 hover:text-gray-600"
+                            className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                             title="Navigate"
                           >
                             <Navigation className="h-4 w-4" />
                           </button>
-                          <button className="p-1 text-gray-400 hover:text-gray-600">
+                          <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
                             {isExpanded ? (
                               <ChevronUp className="h-4 w-4" />
                             ) : (
@@ -364,12 +390,11 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
 
                     {/* Courier Details if couriered */}
                     {trip.status === 'couriered' && trip.courierPartner && (
-                      <div className="mt-2 pt-2 border-t border-gray-200">
-                        <div className="text-xs text-gray-600">
-                          <div className="flex items-center">
-                            <Truck className="h-3 w-3 mr-1" />
-                            <span className="truncate">{trip.courierPartner} • {trip.awbNumber}</span>
-                          </div>
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Truck className="h-4 w-4 mr-2 text-indigo-500" />
+                          <span className="font-medium">Courier:</span>
+                          <span className="ml-1">{trip.courierPartner} • {trip.awbNumber}</span>
                         </div>
                       </div>
                     )}
@@ -377,11 +402,13 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
 
                   {/* Expanded POD Collection Flow */}
                   {isExpanded && (
-                    <div className="border-t border-gray-200 p-4">
-                      <PODCollection
-                        trip={trip}
-                        onUpdateTrip={onUpdateTrip}
-                      />
+                    <div className="border-t border-gray-200 bg-gray-50">
+                      <div className="p-4">
+                        <PODCollection
+                          trip={trip}
+                          onUpdateTrip={onUpdateTrip}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

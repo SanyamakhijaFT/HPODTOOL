@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, MessageSquare } from 'lucide-react';
+import { Search, Filter, MessageSquare, X } from 'lucide-react';
 
 interface RunnerFiltersProps {
   onSearch: (query: string) => void;
@@ -71,6 +71,8 @@ const RunnerFilters: React.FC<RunnerFiltersProps> = ({
       runnerRemarksType: '',
     };
     onFilterChange(clearedFilters);
+    setSearchQuery('');
+    onSearch('');
   };
 
   const getActiveFilterCount = () => {
@@ -80,56 +82,69 @@ const RunnerFilters: React.FC<RunnerFiltersProps> = ({
   };
 
   return (
-    <div className="bg-white shadow rounded-lg p-4 sm:p-6">
-      <div className="flex flex-col sm:flex-row gap-4">
-        {/* Search Bar */}
-        <div className="flex-1">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+    <div className="bg-white shadow-lg rounded-xl overflow-hidden">
+      <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50">
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Search Bar */}
+          <div className="flex-1">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search trips by ID, FO, LSP, vehicle..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    onSearch('');
+                  }}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                  <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                </button>
+              )}
             </div>
-            <input
-              type="text"
-              placeholder="Search by Trip ID, Supplier, Vehicle No..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
-            />
           </div>
-        </div>
 
-        {/* Filter Toggle */}
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className={`inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-            getActiveFilterCount() > 0
-              ? 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100'
-              : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
-          }`}
-        >
-          <Filter className="h-4 w-4 mr-2" />
-          Filters
-          {getActiveFilterCount() > 0 && (
-            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              {getActiveFilterCount()}
-            </span>
-          )}
-        </button>
+          {/* Filter Toggle */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`inline-flex items-center px-4 py-3 border rounded-lg shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ${
+              getActiveFilterCount() > 0
+                ? 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100'
+                : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+            }`}
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Filters
+            {getActiveFilterCount() > 0 && (
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {getActiveFilterCount()}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Filter Options */}
       {showFilters && (
-        <div className="mt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <div className="p-4 border-t border-gray-200 bg-gray-50">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             {/* Slot Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Slot Status
               </label>
               <select 
                 value={activeFilters.slotStatus}
                 onChange={(e) => handleFilterChange('slotStatus', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Slot Status</option>
                 {slotStatusOptions.map(option => (
@@ -140,13 +155,13 @@ const RunnerFilters: React.FC<RunnerFiltersProps> = ({
 
             {/* Runner Remarks Type Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Remark Type
               </label>
               <select 
                 value={activeFilters.runnerRemarksType}
                 onChange={(e) => handleFilterChange('runnerRemarksType', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Remark Types</option>
                 {runnerRemarkTypes.map(type => (
@@ -157,15 +172,15 @@ const RunnerFilters: React.FC<RunnerFiltersProps> = ({
           </div>
 
           {/* Remarks Filter */}
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-4">
-            <label className="flex items-center">
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <label className="flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={activeFilters.hasRunnerRemarks}
                 onChange={(e) => handleFilterChange('hasRunnerRemarks', e.target.checked)}
-                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded transition-all duration-200"
               />
-              <div className="ml-2 flex items-center">
+              <div className="ml-3 flex items-center">
                 <MessageSquare className="h-4 w-4 text-purple-600 mr-1" />
                 <span className="text-sm font-medium text-purple-800">Has Runner Remarks</span>
               </div>
@@ -173,13 +188,14 @@ const RunnerFilters: React.FC<RunnerFiltersProps> = ({
           </div>
 
           {/* Clear Filters */}
-          {getActiveFilterCount() > 0 && (
-            <div className="flex justify-end">
+          {(getActiveFilterCount() > 0 || searchQuery) && (
+            <div className="flex justify-end pt-3 border-t border-gray-200">
               <button
                 onClick={clearAllFilters}
-                className="text-sm text-gray-600 hover:text-gray-800 underline"
+                className="inline-flex items-center px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200"
               >
-                Clear all filters ({getActiveFilterCount()})
+                <X className="h-4 w-4 mr-1" />
+                Clear all filters
               </button>
             </div>
           )}

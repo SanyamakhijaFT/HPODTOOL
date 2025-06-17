@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, RefreshCw, Download, AlertTriangle, Image as ImageIcon, MessageSquare } from 'lucide-react';
+import { Search, Filter, RefreshCw, Download, AlertTriangle, MessageSquare, X } from 'lucide-react';
 import { FilterState } from '../../types';
 
 interface SearchAndFiltersProps {
@@ -83,6 +83,8 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
       runnerRemarksType: '',
     };
     onFilterChange(clearedFilters);
+    setSearchQuery('');
+    onSearch('');
   };
 
   const getActiveFilterCount = () => {
@@ -92,74 +94,87 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
   };
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-      <div className="flex flex-col sm:flex-row gap-4">
-        {/* Search Bar */}
-        <div className="flex-1">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+    <div className="bg-white shadow-lg rounded-xl overflow-hidden">
+      <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Search Bar */}
+          <div className="flex-1">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search by Trip ID, Vehicle No, FO Name, Owner, Route, Supplier..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-200"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    onSearch('');
+                  }}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                  <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                </button>
+              )}
             </div>
-            <input
-              type="text"
-              placeholder="Search by Trip ID, Vehicle No, FO Name, Owner, Route, Supplier..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-            />
           </div>
-        </div>
 
-        {/* Filter Toggle */}
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className={`inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-            getActiveFilterCount() > 0
-              ? 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100'
-              : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
-          }`}
-        >
-          <Filter className="h-4 w-4 mr-2" />
-          Filters
-          {getActiveFilterCount() > 0 && (
-            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              {getActiveFilterCount()}
-            </span>
-          )}
-        </button>
+          {/* Filter Toggle */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`inline-flex items-center px-4 py-3 border rounded-lg shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ${
+              getActiveFilterCount() > 0
+                ? 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100'
+                : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+            }`}
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Filters
+            {getActiveFilterCount() > 0 && (
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {getActiveFilterCount()}
+              </span>
+            )}
+          </button>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2">
-          <button
-            onClick={onRefresh}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </button>
-          <button
-            onClick={onExport}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </button>
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={onRefresh}
+              className="inline-flex items-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </button>
+            <button
+              onClick={onExport}
+              className="inline-flex items-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Filter Dropdowns */}
       {showFilters && (
-        <div className="mt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div className="p-6 border-t border-gray-200 bg-gray-50">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
             {/* Slot Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Slot Status
               </label>
               <select 
                 value={activeFilters.slotStatus}
                 onChange={(e) => handleFilterChange('slotStatus', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Slot Status</option>
                 {slotStatusOptions.map(option => (
@@ -170,13 +185,13 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
 
             {/* Remark Type Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Runner Remarks
               </label>
               <select 
                 value={activeFilters.runnerRemarksType}
                 onChange={(e) => handleFilterChange('runnerRemarksType', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Remark Types</option>
                 {runnerRemarkTypes.map(type => (
@@ -187,13 +202,13 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
 
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Status
               </label>
               <select 
                 value={activeFilters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Statuses</option>
                 <option value="vehicle_unloaded">Vehicle Unloaded</option>
@@ -208,13 +223,13 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
 
             {/* Runner Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Runner
               </label>
               <select 
                 value={activeFilters.runner}
                 onChange={(e) => handleFilterChange('runner', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Runners</option>
                 <option value="Lokesh Kumar">Lokesh Kumar</option>
@@ -226,13 +241,13 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
 
             {/* Secondary Runner Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Secondary Runner
               </label>
               <select 
                 value={activeFilters.secondaryRunner}
                 onChange={(e) => handleFilterChange('secondaryRunner', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Secondary Runners</option>
                 <option value="Lokesh Kumar">Lokesh Kumar</option>
@@ -244,13 +259,13 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
 
             {/* Trip Owner */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Trip Owner
               </label>
               <select 
                 value={activeFilters.owner}
                 onChange={(e) => handleFilterChange('owner', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Owners</option>
                 <option value="Ajay Kumar">Ajay Kumar</option>
@@ -261,13 +276,13 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
 
             {/* Priority */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Priority
               </label>
               <select 
                 value={activeFilters.priority}
                 onChange={(e) => handleFilterChange('priority', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Priorities</option>
                 <option value="high">High</option>
@@ -278,13 +293,13 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
 
             {/* Origin */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Origin
               </label>
               <select 
                 value={activeFilters.origin}
                 onChange={(e) => handleFilterChange('origin', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Origins</option>
                 <option value="Mumbai">Mumbai</option>
@@ -302,13 +317,13 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
 
             {/* Destination */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Destination
               </label>
               <select 
                 value={activeFilters.destination}
                 onChange={(e) => handleFilterChange('destination', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Destinations</option>
                 <option value="Mumbai">Mumbai</option>
@@ -326,13 +341,13 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
 
             {/* D Node */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 D Node (Cluster)
               </label>
               <select 
                 value={activeFilters.dNode}
                 onChange={(e) => handleFilterChange('dNode', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Clusters</option>
                 <option value="Delhi North Cluster">Delhi North Cluster</option>
@@ -348,13 +363,13 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
 
             {/* Aging */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Aging
               </label>
               <select 
                 value={activeFilters.aging}
                 onChange={(e) => handleFilterChange('aging', e.target.value)}
-                className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm py-2 px-3 transition-all duration-200"
               >
                 <option value="">All Ages</option>
                 <option value="0-1">0-1 days</option>
@@ -366,28 +381,28 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
           </div>
 
           {/* Special Filters */}
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-4">
-            <label className="flex items-center">
+          <div className="flex flex-wrap items-center gap-6 mb-4">
+            <label className="flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={activeFilters.hasIssues}
                 onChange={(e) => handleFilterChange('hasIssues', e.target.checked)}
-                className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded transition-all duration-200"
               />
-              <div className="ml-2 flex items-center">
+              <div className="ml-3 flex items-center">
                 <AlertTriangle className="h-4 w-4 text-red-600 mr-1" />
                 <span className="text-sm font-medium text-red-800">Show Only Trips with Issues</span>
               </div>
             </label>
 
-            <label className="flex items-center">
+            <label className="flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={activeFilters.hasRunnerRemarks}
                 onChange={(e) => handleFilterChange('hasRunnerRemarks', e.target.checked)}
-                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded transition-all duration-200"
               />
-              <div className="ml-2 flex items-center">
+              <div className="ml-3 flex items-center">
                 <MessageSquare className="h-4 w-4 text-purple-600 mr-1" />
                 <span className="text-sm font-medium text-purple-800">Show Only Trips with Runner Remarks</span>
               </div>
@@ -395,13 +410,14 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
           </div>
 
           {/* Clear Filters */}
-          {getActiveFilterCount() > 0 && (
-            <div className="flex justify-end">
+          {(getActiveFilterCount() > 0 || searchQuery) && (
+            <div className="flex justify-end pt-4 border-t border-gray-200">
               <button
                 onClick={clearAllFilters}
-                className="text-sm text-gray-600 hover:text-gray-800 underline"
+                className="inline-flex items-center px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200"
               >
-                Clear all filters ({getActiveFilterCount()})
+                <X className="h-4 w-4 mr-1" />
+                Clear all filters ({getActiveFilterCount() + (searchQuery ? 1 : 0)})
               </button>
             </div>
           )}
