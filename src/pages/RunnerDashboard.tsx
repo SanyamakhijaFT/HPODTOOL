@@ -58,7 +58,7 @@ const RunnerDashboard: React.FC = () => {
     todayStats,
   };
 
-  const currentTri ps = activeTab === 'active' ? activeTrips : completedTrips;
+  const currentTrips = activeTab === 'active' ? activeTrips : completedTrips;
 
   return (
     <div className="min-h-screen bg-gray-50">
