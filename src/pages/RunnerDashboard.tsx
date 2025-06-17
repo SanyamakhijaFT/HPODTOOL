@@ -5,7 +5,7 @@ import AssignedTrips from '../components/runner/AssignedTrips';
 import { mockTrips, mockRunnerProfile } from '../data/mockData';
 import { Trip } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Package, CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import { User, CheckCircle, Clock, TrendingUp } from 'lucide-react';
 
 const RunnerDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -58,7 +58,7 @@ const RunnerDashboard: React.FC = () => {
     todayStats,
   };
 
-  const currentTrips = activeTab === 'active' ? activeTrips : completedTrips;
+  const currentTri ps = activeTab === 'active' ? activeTrips : completedTrips;
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -937,7 +937,7 @@ const TripTable: React.FC<TripTableProps> = ({
                             </div>
                             {remark.images && remark.images.length > 0 && (
                               <div className="flex flex-wrap gap-2 mb-2">
-                                {remark.images.map((image, imgIndex) => (
+                                {remark.images.map((_, imgIndex) => (
                                   <span
                                     key={imgIndex}
                                     className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700"

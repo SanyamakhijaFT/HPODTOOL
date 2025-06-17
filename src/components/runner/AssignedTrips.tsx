@@ -16,7 +16,6 @@ import {
   ChevronUp,
   MessageSquare,
   MapPin,
-  FileText,
 } from 'lucide-react';
 import { Trip } from '../../types';
 import PODCollection from './PODCollection';

@@ -594,7 +594,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
                 </div>
                 {remark.images && remark.images.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-2">
-                    {remark.images.map((image, imgIndex) => (
+                    {remark.images.map((_, imgIndex) => (
                       <button
                         key={imgIndex}
                         className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700 hover:bg-purple-200"
