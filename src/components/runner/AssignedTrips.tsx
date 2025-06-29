@@ -50,10 +50,10 @@ const ContactModal: React.FC<ContactModalProps> = ({ trip, onClose }) => {
         </div>
         
         <div className="p-4 space-y-4">
-          {/* FO Contact */}
+          {/* Fleet Owner Contact */}
           <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
             <div className="flex-1">
-              <div className="text-sm font-medium text-blue-900">Field Officer</div>
+              <div className="text-sm font-medium text-blue-900">Fleet Owner</div>
               <div className="text-blue-800 font-semibold">{trip.foName}</div>
               <div className="text-xs text-blue-600">{trip.foPhone}</div>
             </div>
@@ -283,7 +283,7 @@ const AssignedTrips: React.FC<AssignedTripsProps> = ({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                           <div className="flex items-center text-gray-600">
                             <User className="h-4 w-4 mr-2 text-blue-500 flex-shrink-0" />
-                            <span className="truncate"><strong>FO:</strong> {trip.foName}</span>
+                            <span className="truncate"><strong>Fleet Owner:</strong> {trip.foName}</span>
                           </div>
                           <div className="flex items-center text-gray-600">
                             <Building className="h-4 w-4 mr-2 text-green-500 flex-shrink-0" />

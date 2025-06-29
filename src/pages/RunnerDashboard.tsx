@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import RunnerProfile from '../components/runner/RunnerProfile';
 import AssignedTrips from '../components/runner/AssignedTrips';
-import { mockTrips, mockRunnerProfile } from '../data/mockData';
+import { mockTrips } from '../data/mockData';
 import { Trip } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { User, CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import { User, CheckCircle, Clock } from 'lucide-react';
 
 const RunnerDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -40,23 +39,7 @@ const RunnerDashboard: React.FC = () => {
     { id: '3', name: 'Arjun Singh' },
   ];
 
-  // Calculate stats for selected runner
-  const todayStats = {
-    assigned: activeTrips.filter(trip => trip.status === 'assigned').length,
-    completed: completedTrips.length,
-    pending: activeTrips.filter(trip => ['assigned', 'in_progress', 'pod_collected', 'couriered'].includes(trip.status)).length,
-    kmToday: mockRunnerProfile.todayStats.kmToday, // Keep mock data for KM
-  };
-
   const selectedRunnerData = availableRunners.find(r => r.id === selectedRunner);
-  const runnerProfile = {
-    ...mockRunnerProfile,
-    name: selectedRunnerData?.name || mockRunnerProfile.name,
-    phone: user?.phone || mockRunnerProfile.phone,
-    zone: user?.zone || mockRunnerProfile.zone,
-    city: user?.city || mockRunnerProfile.city,
-    todayStats,
-  };
 
   const currentTrips = activeTab === 'active' ? activeTrips : completedTrips;
 
@@ -86,9 +69,6 @@ const RunnerDashboard: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Runner Profile */}
-        <RunnerProfile profile={runnerProfile} />
 
         {/* Trip Management */}
         <div className="bg-white shadow-lg rounded-xl overflow-hidden">
@@ -169,7 +149,6 @@ const CompletedTrips: React.FC<CompletedTripsProps> = ({ trips }) => {
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold text-gray-900">Completed Trips</h3>
         <div className="flex items-center text-sm text-gray-500">
-          <TrendingUp className="h-4 w-4 mr-1" />
           {trips.length} trip{trips.length !== 1 ? 's' : ''} completed
         </div>
       </div>

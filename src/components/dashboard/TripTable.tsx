@@ -159,6 +159,8 @@ const TripTable: React.FC<TripTableProps> = ({
   const [editingOwner, setEditingOwner] = useState<string | null>(null);
   const [editingRunner, setEditingRunner] = useState<string | null>(null);
   const [editingSlotStatus, setEditingSlotStatus] = useState<string | null>(null);
+  const [editingAddress, setEditingAddress] = useState<string | null>(null);
+  const [addressValue, setAddressValue] = useState<string>('');
 
   const toggleExpanded = (tripId: string) => {
     const newExpanded = new Set(expandedTrips);
@@ -193,10 +195,17 @@ const TripTable: React.FC<TripTableProps> = ({
     setEditingSlotStatus(tripId);
   };
 
+  const startEditingAddress = (tripId: string, currentAddress: string) => {
+    setEditingAddress(tripId);
+    setAddressValue(currentAddress || '');
+  };
+
   const cancelEditing = () => {
     setEditingOwner(null);
     setEditingRunner(null);
     setEditingSlotStatus(null);
+    setEditingAddress(null);
+    setAddressValue('');
   };
 
   const saveOwnerUpdate = async (tripId: string, newOwner: string) => {
@@ -219,6 +228,13 @@ const TripTable: React.FC<TripTableProps> = ({
     await new Promise(resolve => setTimeout(resolve, 500));
     onUpdateTrip(tripId, { slotStatus: newSlotStatus as Trip['slotStatus'] });
     setEditingSlotStatus(null);
+  };
+
+  const saveAddressUpdate = async (tripId: string) => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    onUpdateTrip(tripId, { supplierAddress: addressValue });
+    setEditingAddress(null);
+    setAddressValue('');
   };
 
   if (trips.length === 0) {
@@ -285,6 +301,7 @@ const TripTable: React.FC<TripTableProps> = ({
           const isEditingOwnerForTrip = editingOwner === trip.id;
           const isEditingRunnerForTrip = editingRunner === trip.id;
           const isEditingSlotStatusForTrip = editingSlotStatus === trip.id;
+          const isEditingAddressForTrip = editingAddress === trip.id;
           const statusInfo = statusConfig[trip.status];
           const StatusIcon = statusInfo.icon;
 
@@ -553,10 +570,50 @@ const TripTable: React.FC<TripTableProps> = ({
                     <div>
                       <h4 className="text-sm font-medium text-gray-900 mb-3">Address & Documents</h4>
                       <div className="space-y-2">
+                        {/* Supplier Address - Editable in expanded view */}
                         <div className="flex items-start justify-between">
                           <div className="text-sm text-gray-600 flex-1">
-                            <div className="font-medium">Supplier Address:</div>
-                            <div className="text-xs text-gray-500 mt-1">{trip.supplierAddress || 'No address set'}</div>
+                            <div className="font-medium mb-1">Supplier Address:</div>
+                            {isEditingAddressForTrip ? (
+                              <div className="flex items-start space-x-2">
+                                <textarea
+                                  value={addressValue}
+                                  onChange={(e) => setAddressValue(e.target.value)}
+                                  placeholder="Enter supplier address..."
+                                  rows={3}
+                                  className="flex-1 text-xs border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                />
+                                <div className="flex flex-col space-y-1">
+                                  <button
+                                    onClick={() => saveAddressUpdate(trip.id)}
+                                    className="p-1 text-green-600 hover:text-green-800"
+                                    title="Save Address"
+                                  >
+                                    <Save className="h-4 w-4" />
+                                  </button>
+                                  <button
+                                    onClick={cancelEditing}
+                                    className="p-1 text-red-600 hover:text-red-800"
+                                    title="Cancel"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex items-start justify-between">
+                                <div className="text-xs text-gray-500 flex-1 mr-2">
+                                  {trip.supplierAddress || 'No address set'}
+                                </div>
+                                <button
+                                  onClick={() => startEditingAddress(trip.id, trip.supplierAddress)}
+                                  className="p-1 text-gray-400 hover:text-gray-600 flex-shrink-0"
+                                  title="Edit Address"
+                                >
+                                  <Edit3 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
 
