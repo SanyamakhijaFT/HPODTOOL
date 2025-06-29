@@ -103,7 +103,6 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
   const [issueDescription, setIssueDescription] = useState('');
   const [remarkType, setRemarkType] = useState('');
   const [remarkText, setRemarkText] = useState('');
-  const [remarkImages, setRemarkImages] = useState<string[]>([]);
   
   // FO Courier form states
   const [foCourierService, setFOCourierService] = useState('');
@@ -140,37 +139,10 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
     setUploading(false);
   };
 
-  const handleRemarkImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
-
-    const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
-    if (validFiles.length !== files.length) {
-      alert('Only image files are allowed');
-      return;
-    }
-
-    if (remarkImages.length + validFiles.length > 3) {
-      alert('Maximum 3 images allowed per remark');
-      return;
-    }
-
-    setUploading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newFiles = validFiles.map(file => file.name);
-    setRemarkImages([...remarkImages, ...newFiles]);
-    setUploading(false);
-  };
-
   const handleRemoveFile = (fileName: string) => {
     const updatedFiles = uploadedFiles.filter(file => file !== fileName);
     setUploadedFiles(updatedFiles);
     onUpdateTrip(trip.id, { podImages: updatedFiles });
-  };
-
-  const handleRemoveRemarkImage = (fileName: string) => {
-    setRemarkImages(remarkImages.filter(file => file !== fileName));
   };
 
   const handleStatusChange = async (newStatus: string) => {
@@ -210,7 +182,7 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
     const newRemark = {
       type: remarkType,
       text: finalRemarkText,
-      images: remarkImages,
+      images: [], // No images for remarks in runner view
       addedAt: new Date().toISOString(),
     };
 
@@ -223,7 +195,6 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
     setShowAddRemarkForm(false);
     setRemarkType('');
     setRemarkText('');
-    setRemarkImages([]);
     setLoading(false);
   };
 
@@ -592,19 +563,6 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
                 <div className="text-sm text-purple-800 mb-2">
                   <span className="font-medium">{remark.type}:</span> {remark.text}
                 </div>
-                {remark.images && remark.images.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {remark.images.map((_, imgIndex) => (
-                      <button
-                        key={imgIndex}
-                        className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700 hover:bg-purple-200"
-                      >
-                        <ImageIcon className="h-3 w-3 mr-1" />
-                        Image {imgIndex + 1}
-                      </button>
-                    ))}
-                  </div>
-                )}
                 <div className="text-xs text-purple-600">
                   Added: {new Date(remark.addedAt).toLocaleString()}
                 </div>
@@ -658,53 +616,6 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
               )}
 
               {remarkType !== 'FO COURIERED' && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Images (Max 3)
-                  </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-3">
-                    <div className="text-center">
-                      <Upload className="mx-auto h-6 w-6 text-gray-400" />
-                      <div className="mt-1">
-                        <label htmlFor="remark-upload" className="cursor-pointer">
-                          <span className="text-xs font-medium text-purple-600 hover:text-purple-500">
-                            Upload Images
-                          </span>
-                          <input
-                            id="remark-upload"
-                            type="file"
-                            className="sr-only"
-                            multiple
-                            accept="image/*"
-                            onChange={handleRemarkImageUpload}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  {remarkImages.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {remarkImages.map((image, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                          <div className="flex items-center">
-                            <ImageIcon className="h-4 w-4 text-gray-400 mr-2" />
-                            <span className="text-sm text-gray-700">{image}</span>
-                          </div>
-                          <button
-                            onClick={() => handleRemoveRemarkImage(image)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {remarkType !== 'FO COURIERED' && (
                 <div className="flex space-x-2">
                   <button
                     onClick={handleAddRemark}
@@ -723,7 +634,6 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
                       setShowAddRemarkForm(false);
                       setRemarkType('');
                       setRemarkText('');
-                      setRemarkImages([]);
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                   >

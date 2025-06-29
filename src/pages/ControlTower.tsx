@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { RefreshCw } from 'lucide-react';
-import StatsCards from '../components/dashboard/StatsCards';
 import TripTabs from '../components/dashboard/TripTabs';
 import SearchAndFilters from '../components/dashboard/SearchAndFilters';
 import TripTable from '../components/dashboard/TripTable';
-import { mockTrips, mockStats } from '../data/mockData';
+import { mockTrips } from '../data/mockData';
 import { Trip, FilterState } from '../types';
 
 const ControlTower: React.FC = () => {
   const [activeTab, setActiveTab] = useState('all');
+  const [activeView, setActiveView] = useState<'runner_assigned' | 'non_runner'>('runner_assigned');
   const [searchQuery, setSearchQuery] = useState('');
   const [trips, setTrips] = useState<Trip[]>(mockTrips);
   const [selectedTrips, setSelectedTrips] = useState<string[]>([]);
@@ -32,8 +32,13 @@ const ControlTower: React.FC = () => {
     runnerRemarksType: '',
   });
 
-  // Filter trips based on active tab, search query, and filters
+  // Filter trips based on view, active tab, search query, and filters
   const filteredTrips = trips.filter((trip) => {
+    // View filter - Runner Assigned vs Non-Runner
+    const matchesView = activeView === 'runner_assigned' 
+      ? trip.runner // Has a runner assigned
+      : !trip.runner; // No runner assigned
+
     // Tab filter
     const matchesTab = activeTab === 'all' || trip.status === activeTab;
     
@@ -88,7 +93,7 @@ const ControlTower: React.FC = () => {
       }
     }
 
-    return matchesTab && matchesSearch && matchesTripId && matchesSlotStatus && 
+    return matchesView && matchesTab && matchesSearch && matchesTripId && matchesSlotStatus && 
            matchesSupplier && matchesOrigin && matchesDestination && 
            matchesVehicle && matchesRunner && matchesSecondaryRunner && matchesPriority && 
            matchesStatus && matchesOwner && matchesIssues && matchesAging && 
@@ -121,7 +126,7 @@ const ControlTower: React.FC = () => {
     const a = document.createElement('a');
     a.setAttribute('hidden', '');
     a.setAttribute('href', url);
-    a.setAttribute('download', `trips_${activeTab}_${new Date().toISOString().split('T')[0]}.csv`);
+    a.setAttribute('download', `trips_${activeView}_${activeTab}_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -159,56 +164,98 @@ const ControlTower: React.FC = () => {
     );
   };
 
-  // Clear selection when tab changes
+  // Clear selection when tab or view changes
   useEffect(() => {
     setSelectedTrips([]);
-  }, [activeTab]);
+  }, [activeTab, activeView]);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">POD Control Tower</h1>
-        <button
-          onClick={handleSyncFromCRM}
-          disabled={loading}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          {loading ? 'Syncing...' : 'Sync from CRM'}
-        </button>
-      </div>
-
-      {/* Stats Cards */}
-      <StatsCards stats={mockStats} />
-
-      {/* Trip Management */}
-      <div className="bg-white shadow rounded-lg">
-        {/* Trip Tabs */}
-        <div className="px-6 pt-6">
-          <TripTabs activeTab={activeTab} onTabChange={setActiveTab} />
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Header */}
+        <div className="bg-white shadow-lg rounded-xl p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">POD Control Tower</h1>
+              <p className="text-gray-600 mt-1">Manage and track POD collection across all trips</p>
+            </div>
+            <button
+              onClick={handleSyncFromCRM}
+              disabled={loading}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-all duration-200"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              {loading ? 'Syncing...' : 'Sync from CRM'}
+            </button>
+          </div>
         </div>
 
-        {/* Search and Filters */}
-        <div className="p-6">
-          <SearchAndFilters
-            onSearch={handleSearch}
-            onRefresh={handleRefresh}
-            onExport={handleExport}
-            onFilterChange={handleFilterChange}
-            activeFilters={filters}
-          />
-        </div>
+        {/* View Toggle */}
+        <div className="bg-white shadow-lg rounded-xl overflow-hidden">
+          <div className="border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <nav className="flex space-x-8 px-6">
+              <button
+                onClick={() => setActiveView('runner_assigned')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                  activeView === 'runner_assigned'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <span>Runner Assigned Trips</span>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {trips.filter(t => t.runner).length}
+                  </span>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => setActiveView('non_runner')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                  activeView === 'non_runner'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <span>Non-Runner Trips</span>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    {trips.filter(t => !t.runner).length}
+                  </span>
+                </div>
+              </button>
+            </nav>
+          </div>
 
-        {/* Trip Table */}
-        <div className="pb-6">
-          <TripTable
-            trips={filteredTrips}
-            selectedTrips={selectedTrips}
-            onSelectTrip={handleSelectTrip}
-            onSelectAll={handleSelectAll}
-            onUpdateTrip={handleUpdateTrip}
-          />
+          {/* Trip Tabs */}
+          <div className="px-6 pt-6">
+            <TripTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          </div>
+
+          {/* Search and Filters */}
+          <div className="p-6">
+            <SearchAndFilters
+              onSearch={handleSearch}
+              onRefresh={handleRefresh}
+              onExport={handleExport}
+              onFilterChange={handleFilterChange}
+              activeFilters={filters}
+              showRunnerFilter={activeView === 'non_runner'}
+            />
+          </div>
+
+          {/* Trip Table */}
+          <div className="pb-6">
+            <TripTable
+              trips={filteredTrips}
+              selectedTrips={selectedTrips}
+              onSelectTrip={handleSelectTrip}
+              onSelectAll={handleSelectAll}
+              onUpdateTrip={handleUpdateTrip}
+              viewType={activeView}
+            />
+          </div>
         </div>
       </div>
     </div>
