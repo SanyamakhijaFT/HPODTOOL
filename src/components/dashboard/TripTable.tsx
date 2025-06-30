@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  ChevronDown,
-  ChevronUp,
   Phone,
   UserPlus,
   Send,
@@ -155,23 +154,10 @@ const TripTable: React.FC<TripTableProps> = ({
   onUpdateTrip,
   viewType,
 }) => {
-  const [expandedTrips, setExpandedTrips] = useState<Set<string>>(new Set());
   const [editingStatus, setEditingStatus] = useState<string | null>(null);
   const [editingOwner, setEditingOwner] = useState<string | null>(null);
   const [editingRunner, setEditingRunner] = useState<string | null>(null);
   const [editingSlotStatus, setEditingSlotStatus] = useState<string | null>(null);
-  const [editingAddress, setEditingAddress] = useState<string | null>(null);
-  const [addressValue, setAddressValue] = useState<string>('');
-
-  const toggleExpanded = (tripId: string) => {
-    const newExpanded = new Set(expandedTrips);
-    if (newExpanded.has(tripId)) {
-      newExpanded.delete(tripId);
-    } else {
-      newExpanded.add(tripId);
-    }
-    setExpandedTrips(newExpanded);
-  };
 
   const handleCallFO = (foPhone: string) => {
     window.open(`tel:${foPhone}`, '_self');
@@ -200,18 +186,11 @@ const TripTable: React.FC<TripTableProps> = ({
     setEditingSlotStatus(tripId);
   };
 
-  const startEditingAddress = (tripId: string, currentAddress: string) => {
-    setEditingAddress(tripId);
-    setAddressValue(currentAddress || '');
-  };
-
   const cancelEditing = () => {
     setEditingStatus(null);
     setEditingOwner(null);
     setEditingRunner(null);
     setEditingSlotStatus(null);
-    setEditingAddress(null);
-    setAddressValue('');
   };
 
   const saveStatusUpdate = async (tripId: string, newStatus: string) => {
@@ -240,13 +219,6 @@ const TripTable: React.FC<TripTableProps> = ({
     await new Promise(resolve => setTimeout(resolve, 500));
     onUpdateTrip(tripId, { slotStatus: newSlotStatus as Trip['slotStatus'] });
     setEditingSlotStatus(null);
-  };
-
-  const saveAddressUpdate = async (tripId: string) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    onUpdateTrip(tripId, { supplierAddress: addressValue });
-    setEditingAddress(null);
-    setAddressValue('');
   };
 
   if (trips.length === 0) {
@@ -308,13 +280,11 @@ const TripTable: React.FC<TripTableProps> = ({
       {/* Trip Cards */}
       <div className="divide-y divide-gray-100">
         {trips.map((trip) => {
-          const isExpanded = expandedTrips.has(trip.id);
           const isSelected = selectedTrips.includes(trip.id);
           const isEditingStatusForTrip = editingStatus === trip.id;
           const isEditingOwnerForTrip = editingOwner === trip.id;
           const isEditingRunnerForTrip = editingRunner === trip.id;
           const isEditingSlotStatusForTrip = editingSlotStatus === trip.id;
-          const isEditingAddressForTrip = editingAddress === trip.id;
           const statusInfo = statusConfig[trip.status];
           const StatusIcon = statusInfo.icon;
 
@@ -508,46 +478,40 @@ const TripTable: React.FC<TripTableProps> = ({
                     </div>
                   </div>
                 </div>
-
-                <button
-                  onClick={() => toggleExpanded(trip.id)}
-                  className="p-2 text-gray-400 hover:text-gray-600"
-                >
-                  {isExpanded ? (
-                    <ChevronUp className="h-5 w-5" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5" />
-                  )}
-                </button>
               </div>
 
               {/* Quick Info Row */}
-              {!isExpanded && (
-                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Route className="h-4 w-4 mr-2 text-gray-400" />
-                    {trip.route}
-                  </div>
-                  
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Building className="h-4 w-4 mr-2 text-gray-400" />
-                    {trip.dNode}
-                  </div>
-                  
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                    Unloaded: {new Date(trip.unloadDate).toLocaleDateString()}
-                  </div>
-                  
-                  <div className="flex items-center text-sm text-gray-600">
-                    <User className="h-4 w-4 mr-2 text-gray-400" />
-                    FO: {trip.foName}
-                  </div>
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="flex items-center text-sm text-gray-600">
+                  <Route className="h-4 w-4 mr-2 text-gray-400" />
+                  {trip.route}
                 </div>
-              )}
+                
+                <div className="flex items-center text-sm text-gray-600">
+                  <Building className="h-4 w-4 mr-2 text-gray-400" />
+                  {trip.dNode}
+                </div>
+                
+                <div className="flex items-center text-sm text-gray-600">
+                  <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                  Unloaded: {new Date(trip.unloadDate).toLocaleDateString()}
+                </div>
+                
+                <div className="flex items-center text-sm text-gray-600">
+                  <User className="h-4 w-4 mr-2 text-gray-400" />
+                  FO: {trip.foName}
+                </div>
+              </div>
 
               {/* Action Buttons */}
               <div className="mt-4 flex flex-wrap gap-2">
+                <Link
+                  to={`/trip/${trip.id}`}
+                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  View Details
+                </Link>
+                
                 <button
                   onClick={() => handleCallFO(trip.foPhone)}
                   className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
@@ -575,212 +539,6 @@ const TripTable: React.FC<TripTableProps> = ({
                   Send FO Link
                 </button>
               </div>
-
-              {/* Expanded Details */}
-              {isExpanded && (
-                <div className="mt-6 border-t border-gray-200 pt-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Contact Information */}
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">Contact Information</h4>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">FO: {trip.foName}</span>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => handleCallFO(trip.foPhone)}
-                              className="p-1 text-gray-400 hover:text-gray-600"
-                            >
-                              <Phone className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-                        <div className="text-xs text-gray-500">{trip.foPhone}</div>
-                        
-                        <div className="text-sm text-gray-600">Supply POC: {trip.supplyPocName}</div>
-                        <div className="text-xs text-gray-500">{trip.supplyPocPhone}</div>
-                        
-                        <div className="text-sm text-gray-600">Demand POC: {trip.demandPocName}</div>
-                        <div className="text-xs text-gray-500">{trip.demandPocPhone}</div>
-                        
-                        {trip.driverName && (
-                          <>
-                            <div className="text-sm text-gray-600">Driver: {trip.driverName}</div>
-                            <div className="text-xs text-gray-500">{trip.driverPhone}</div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Address & Documents */}
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">Address & Documents</h4>
-                      <div className="space-y-2">
-                        {/* Supplier Address - Editable in expanded view */}
-                        <div className="flex items-start justify-between">
-                          <div className="text-sm text-gray-600 flex-1">
-                            <div className="font-medium mb-1">Supplier Address:</div>
-                            {isEditingAddressForTrip ? (
-                              <div className="flex items-start space-x-2">
-                                <textarea
-                                  value={addressValue}
-                                  onChange={(e) => setAddressValue(e.target.value)}
-                                  placeholder="Enter supplier address..."
-                                  rows={3}
-                                  className="flex-1 text-xs border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                />
-                                <div className="flex flex-col space-y-1">
-                                  <button
-                                    onClick={() => saveAddressUpdate(trip.id)}
-                                    className="p-1 text-green-600 hover:text-green-800"
-                                    title="Save Address"
-                                  >
-                                    <Save className="h-4 w-4" />
-                                  </button>
-                                  <button
-                                    onClick={cancelEditing}
-                                    className="p-1 text-red-600 hover:text-red-800"
-                                    title="Cancel"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="flex items-start justify-between">
-                                <div className="text-xs text-gray-500 flex-1 mr-2">
-                                  {trip.supplierAddress || 'No address set'}
-                                </div>
-                                <button
-                                  onClick={() => startEditingAddress(trip.id, trip.supplierAddress)}
-                                  className="p-1 text-gray-400 hover:text-gray-600 flex-shrink-0"
-                                  title="Edit Address"
-                                >
-                                  <Edit3 className="h-4 w-4" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {trip.foOfficeAddress && (
-                          <div className="flex items-start justify-between">
-                            <div className="text-sm text-gray-600 flex-1">
-                              <div className="font-medium">FO Office Address:</div>
-                              <div className="text-xs text-gray-500 mt-1">{trip.foOfficeAddress}</div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Runner Remarks Section */}
-                  {trip.runnerRemarks && trip.runnerRemarks.length > 0 && (
-                    <div className="mt-6">
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">Runner Remarks</h4>
-                      <div className="space-y-3">
-                        {trip.runnerRemarks.map((remark, index) => (
-                          <div key={index} className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-                            <div className="text-sm text-purple-800 mb-2">
-                              <span className="font-medium">{remark.type}:</span> {remark.text}
-                            </div>
-                            {remark.images && remark.images.length > 0 && (
-                              <div className="flex flex-wrap gap-2 mb-2">
-                                {remark.images.map((_, imgIndex) => (
-                                  <span
-                                    key={imgIndex}
-                                    className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700"
-                                  >
-                                    <ImageIcon className="h-3 w-3 mr-1" />
-                                    Image {imgIndex + 1}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                            <div className="text-xs text-purple-600">
-                              Added: {new Date(remark.addedAt).toLocaleString()}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Issue Details */}
-                  {trip.issueReported && (
-                    <div className="mt-6">
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">Reported Issue</h4>
-                      <div className="bg-red-50 rounded-lg p-4">
-                        <div className="flex items-start">
-                          <AlertTriangle className="h-5 w-5 text-red-400 mr-3 mt-0.5" />
-                          <div className="flex-1">
-                            <div className="text-sm font-medium text-red-800">{trip.issueReported.type}</div>
-                            {trip.issueReported.description && (
-                              <div className="text-sm text-red-700 mt-1">{trip.issueReported.description}</div>
-                            )}
-                            <div className="text-xs text-red-600 mt-2">
-                              Reported: {new Date(trip.issueReported.reportedAt).toLocaleString()}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Courier Details */}
-                  {(trip.status === 'couriered' || trip.status === 'delivered') && trip.courierPartner && (
-                    <div className="mt-6">
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">Courier Details</h4>
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <span className="text-gray-600">Courier Partner:</span>
-                            <div className="font-medium">{trip.courierPartner}</div>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">AWB/Docket:</span>
-                            <div className="font-medium">{trip.awbNumber}</div>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">Status:</span>
-                            <div className="font-medium text-green-600">In Transit</div>
-                          </div>
-                          {trip.collectedFrom && (
-                            <div>
-                              <span className="text-gray-600">Collected From:</span>
-                              <div className="font-medium">{trip.collectedFrom}</div>
-                            </div>
-                          )}
-                          {trip.courierComments && (
-                            <div className="col-span-3">
-                              <span className="text-gray-600">Comments:</span>
-                              <div className="font-medium">{trip.courierComments}</div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* POD Images */}
-                  {trip.podImages && trip.podImages.length > 0 && (
-                    <div className="mt-6">
-                      <h4 className="text-sm font-medium text-gray-900 mb-3">POD Images</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {trip.podImages.map((image, index) => (
-                          <div key={index} className="flex items-center space-x-2 bg-gray-50 rounded px-3 py-2">
-                            <span className="text-sm text-gray-600">{image}</span>
-                            <button className="p-1 text-gray-400 hover:text-gray-600">
-                              <ImageIcon className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           );
         })}
