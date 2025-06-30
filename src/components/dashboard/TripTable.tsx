@@ -156,6 +156,7 @@ const TripTable: React.FC<TripTableProps> = ({
   viewType,
 }) => {
   const [expandedTrips, setExpandedTrips] = useState<Set<string>>(new Set());
+  const [editingStatus, setEditingStatus] = useState<string | null>(null);
   const [editingOwner, setEditingOwner] = useState<string | null>(null);
   const [editingRunner, setEditingRunner] = useState<string | null>(null);
   const [editingSlotStatus, setEditingSlotStatus] = useState<string | null>(null);
@@ -183,6 +184,10 @@ const TripTable: React.FC<TripTableProps> = ({
     window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
   };
 
+  const startEditingStatus = (tripId: string) => {
+    setEditingStatus(tripId);
+  };
+
   const startEditingOwner = (tripId: string) => {
     setEditingOwner(tripId);
   };
@@ -201,11 +206,18 @@ const TripTable: React.FC<TripTableProps> = ({
   };
 
   const cancelEditing = () => {
+    setEditingStatus(null);
     setEditingOwner(null);
     setEditingRunner(null);
     setEditingSlotStatus(null);
     setEditingAddress(null);
     setAddressValue('');
+  };
+
+  const saveStatusUpdate = async (tripId: string, newStatus: string) => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    onUpdateTrip(tripId, { status: newStatus as Trip['status'] });
+    setEditingStatus(null);
   };
 
   const saveOwnerUpdate = async (tripId: string, newOwner: string) => {
@@ -298,6 +310,7 @@ const TripTable: React.FC<TripTableProps> = ({
         {trips.map((trip) => {
           const isExpanded = expandedTrips.has(trip.id);
           const isSelected = selectedTrips.includes(trip.id);
+          const isEditingStatusForTrip = editingStatus === trip.id;
           const isEditingOwnerForTrip = editingOwner === trip.id;
           const isEditingRunnerForTrip = editingRunner === trip.id;
           const isEditingSlotStatusForTrip = editingSlotStatus === trip.id;
@@ -327,11 +340,44 @@ const TripTable: React.FC<TripTableProps> = ({
                     </div>
                     
                     <div className="flex items-center space-x-4 mt-1">
-                      {/* Status Display */}
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
-                        <StatusIcon className="h-3 w-3 mr-1" />
-                        {statusInfo.label}
-                      </span>
+                      {/* Status Display/Edit */}
+                      {isEditingStatusForTrip ? (
+                        <div className="flex items-center space-x-2">
+                          <select
+                            defaultValue={trip.status}
+                            onChange={(e) => saveStatusUpdate(trip.id, e.target.value)}
+                            className="text-xs border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            <option value="vehicle_unloaded">Vehicle Unloaded</option>
+                            <option value="assigned">Assigned</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="pod_collected">POD Collected</option>
+                            <option value="couriered">Couriered</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="fo_courier">FO Courier</option>
+                          </select>
+                          <button
+                            onClick={() => setEditingStatus(null)}
+                            className="p-1 text-red-600 hover:text-red-800"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                            <StatusIcon className="h-3 w-3 mr-1" />
+                            {statusInfo.label}
+                          </span>
+                          <button
+                            onClick={() => startEditingStatus(trip.id)}
+                            className="p-1 text-gray-400 hover:text-gray-600"
+                            title="Edit Status"
+                          >
+                            <Edit3 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
 
                       {/* Trip Owner */}
                       {isEditingOwnerForTrip ? (
