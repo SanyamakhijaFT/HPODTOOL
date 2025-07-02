@@ -269,12 +269,20 @@ const TripDetails: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-500 mb-2">FO Details</label>
                   <div className="space-y-1">
                     <div className="text-sm text-gray-900 font-medium">{trip.foName}</div>
+                    <div className="text-sm text-gray-600 flex items-center">
+                      <Phone className="h-4 w-4 mr-2" />
+                      {trip.foPhone}
+                    </div>
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-500 mb-2">Supply POC</label>
                   <div className="space-y-1">
                     <div className="text-sm text-gray-900 font-medium">{trip.supplyPocName}</div>
+                    <div className="text-sm text-gray-600 flex items-center">
+                      <Phone className="h-4 w-4 mr-2" />
+                      {trip.supplyPocPhone}
+                    </div>
                   </div>
                 </div>
                 <div>
@@ -294,6 +302,10 @@ const TripDetails: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-500 mb-2">Driver Details</label>
                     <div className="space-y-1">
                       <div className="text-sm text-gray-900 font-medium">{trip.driverName}</div>
+                      <div className="text-sm text-gray-600 flex items-center">
+                        <Phone className="h-4 w-4 mr-2" />
+                        {trip.driverPhone}
+                      </div>
                     </div>
                   </div>
                 )}
