@@ -26,21 +26,6 @@ const slotStatusOptions = [
   { value: 'cancelled', label: 'Cancelled' },
 ];
 
-const runnerRemarkTypes = [
-  'COLLECTED FROM DRIVER',
-  'COLLECTED FROM SUPPLIER',
-  '(empty)',
-  'ON-SITE',
-  'CRM ENTRY LATE',
-  'COLLECTED FROM PUNE OFFICE',
-  'LATE NIGHT UNLOADED',
-  'INTRANSIT',
-  'WAITING FOR UNLOADING',
-  'COLLECTED FROM CHN OFFICE',
-  'FO COURIERED',
-  'Other',
-];
-
 const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
   onSearch,
   onRefresh,

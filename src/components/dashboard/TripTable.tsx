@@ -6,15 +6,12 @@ import {
   Send,
   Package,
   CheckCircle,
-  Truck,
   User,
   Calendar,
   AlertTriangle,
   MessageSquare,
   Edit3,
-  Save,
   X,
-  ImageIcon,
   Building,
   Route,
 } from 'lucide-react';
@@ -67,16 +64,6 @@ const statusConfig = {
     nextStatus: 'delivered',
   },
 };
-
-const courierOptions = [
-  'Blue Dart',
-  'DTDC',
-  'DHL',
-  'FedEx',
-  'Delhivery',
-  'Hand Delivered',
-  'Other',
-];
 
 const ownerOptions = [
   'Ajay Kumar',
