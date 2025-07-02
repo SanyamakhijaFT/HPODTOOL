@@ -39,8 +39,6 @@ const RunnerDashboard: React.FC = () => {
     { id: '3', name: 'Arjun Singh' },
   ];
 
-  const selectedRunnerData = availableRunners.find(r => r.id === selectedRunner);
-
   const currentTrips = activeTab === 'active' ? activeTrips : completedTrips;
 
   return (

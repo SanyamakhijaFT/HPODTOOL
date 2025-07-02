@@ -18,9 +18,7 @@ import {
   Edit3,
   Save,
   X,
-  MessageSquare,
-  Plus,
-  Trash2
+  MessageSquare
 } from 'lucide-react';
 import { mockTrips } from '../data/mockData';
 import { Trip } from '../types';
@@ -33,7 +31,6 @@ const TripDetails: React.FC = () => {
   const [editingSlotStatus, setEditingSlotStatus] = useState(false);
   const [slotStatusValue, setSlotStatusValue] = useState(trip?.slotStatus || '');
   const [ownerRemark, setOwnerRemark] = useState('');
-  const [addingOwnerRemark, setAddingOwnerRemark] = useState(false);
 
   if (!trip) {
     return (
@@ -153,7 +150,6 @@ const TripDetails: React.FC = () => {
     } : prev);
     
     setOwnerRemark('');
-    setAddingOwnerRemark(false);
   };
 
   const handleDeleteOwnerRemark = async (index: number) => {

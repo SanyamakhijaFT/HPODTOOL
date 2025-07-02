@@ -168,13 +168,6 @@ const TripTable: React.FC<TripTableProps> = ({
     setEditingSlotStatus(tripId);
   };
 
-  const cancelEditing = () => {
-    setEditingStatus(null);
-    setEditingOwner(null);
-    setEditingRunner(null);
-    setEditingSlotStatus(null);
-  };
-
   const saveStatusUpdate = async (tripId: string, newStatus: string) => {
     await new Promise(resolve => setTimeout(resolve, 500));
     onUpdateTrip(tripId, { status: newStatus as Trip['status'] });
