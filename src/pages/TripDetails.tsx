@@ -17,7 +17,10 @@ import {
   Building,
   Edit3,
   Save,
-  X
+  X,
+  MessageSquare,
+  Plus,
+  Trash2
 } from 'lucide-react';
 import { mockTrips } from '../data/mockData';
 import { Trip } from '../types';
@@ -27,6 +30,8 @@ const TripDetails: React.FC = () => {
   const [trip, setTrip] = useState<Trip | undefined>(mockTrips.find(t => t.id === id));
   const [editingAddress, setEditingAddress] = useState(false);
   const [addressValue, setAddressValue] = useState(trip?.supplierAddress || '');
+  const [ownerRemark, setOwnerRemark] = useState('');
+  const [addingOwnerRemark, setAddingOwnerRemark] = useState(false);
 
   if (!trip) {
     return (
@@ -79,6 +84,37 @@ const TripDetails: React.FC = () => {
     setEditingAddress(false);
   };
 
+  const handleAddOwnerRemark = async () => {
+    if (!ownerRemark.trim()) return;
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const newRemark = {
+      text: ownerRemark,
+      addedAt: new Date().toISOString(),
+      addedBy: 'Current User', // In real app, get from auth context
+    };
+
+    setTrip(prev => prev ? {
+      ...prev,
+      ownerRemarks: [...(prev.ownerRemarks || []), newRemark]
+    } : prev);
+    
+    setOwnerRemark('');
+    setAddingOwnerRemark(false);
+  };
+
+  const handleDeleteOwnerRemark = async (index: number) => {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    setTrip(prev => prev ? {
+      ...prev,
+      ownerRemarks: prev.ownerRemarks?.filter((_, i) => i !== index) || []
+    } : prev);
+  };
+
   const handleNavigate = () => {
     if (trip.supplierAddress) {
       const query = encodeURIComponent(trip.supplierAddress);
@@ -123,7 +159,7 @@ const TripDetails: React.FC = () => {
         </Link>
 
         {/* Trip Header */}
-        <div className="bg-white shadow-lg rounded-xl p-6 mb-6">
+        <div className="bg-white shadow rounded-lg p-6 mb-6">
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-3">{trip.id}</h1>
@@ -147,7 +183,7 @@ const TripDetails: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Vehicle & Route Information */}
-            <div className="bg-white shadow-lg rounded-xl p-6">
+            <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Vehicle & Route Information</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
@@ -186,7 +222,7 @@ const TripDetails: React.FC = () => {
             </div>
 
             {/* Contact Information */}
-            <div className="bg-white shadow-lg rounded-xl p-6">
+            <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
@@ -235,7 +271,7 @@ const TripDetails: React.FC = () => {
             </div>
 
             {/* Supplier Address - Editable */}
-            <div className="bg-white shadow-lg rounded-xl p-6">
+            <div className="bg-white shadow rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Supplier Address</h3>
                 {!editingAddress && (
@@ -291,9 +327,165 @@ const TripDetails: React.FC = () => {
               )}
             </div>
 
+            {/* Runner Issues Section */}
+            {trip.issueReported && (
+              <div className="bg-white shadow rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
+                  Runner Reported Issues
+                </h3>
+                
+                <div className="space-y-4">
+                  {/* Current Issue */}
+                  <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <div className="flex items-start">
+                      <AlertTriangle className="h-5 w-5 text-red-400 mr-3 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-red-800">{trip.issueReported.type}</div>
+                        {trip.issueReported.description && (
+                          <div className="text-red-700 mt-1">{trip.issueReported.description}</div>
+                        )}
+                        <div className="text-xs text-red-600 mt-2">
+                          Reported: {new Date(trip.issueReported.reportedAt).toLocaleString()}
+                        </div>
+                        {trip.issueReported.resolved && (
+                          <div className="text-xs text-green-600 mt-1">
+                            Resolved: {new Date(trip.issueReported.resolvedAt!).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Issue Updates */}
+                  {trip.issueReported.updates && trip.issueReported.updates.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">Issue Updates</h4>
+                      <div className="space-y-2">
+                        {trip.issueReported.updates.map((update, index) => (
+                          <div key={index} className="p-3 bg-yellow-50 rounded border border-yellow-200">
+                            <div className="text-sm text-yellow-800 font-medium">{update.type}</div>
+                            {update.description && (
+                              <div className="text-sm text-yellow-700 mt-1">{update.description}</div>
+                            )}
+                            <div className="text-xs text-yellow-600 mt-1">
+                              Updated: {new Date(update.updatedAt).toLocaleString()}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Runner Remarks Section */}
+            {trip.runnerRemarks && trip.runnerRemarks.length > 0 && (
+              <div className="bg-white shadow rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <MessageSquare className="h-5 w-5 mr-2 text-purple-500" />
+                  Runner Remarks
+                </h3>
+                
+                <div className="space-y-3">
+                  {trip.runnerRemarks.map((remark, index) => (
+                    <div key={index} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="text-sm text-purple-800 mb-2">
+                            <span className="font-medium">{remark.type}:</span> {remark.text}
+                          </div>
+                          <div className="text-xs text-purple-600">
+                            Added: {new Date(remark.addedAt).toLocaleString()}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Owner Remarks Section */}
+            <div className="bg-white shadow rounded-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <User className="h-5 w-5 mr-2 text-blue-500" />
+                  Owner Remarks
+                </h3>
+                <button
+                  onClick={() => setAddingOwnerRemark(true)}
+                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add Remark
+                </button>
+              </div>
+
+              {/* Existing Owner Remarks */}
+              {trip.ownerRemarks && trip.ownerRemarks.length > 0 ? (
+                <div className="space-y-3 mb-4">
+                  {trip.ownerRemarks.map((remark, index) => (
+                    <div key={index} className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="text-sm text-blue-800 mb-2">{remark.text}</div>
+                          <div className="text-xs text-blue-600">
+                            Added by {remark.addedBy} on {new Date(remark.addedAt).toLocaleString()}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteOwnerRemark(index)}
+                          className="ml-2 p-1 text-red-400 hover:text-red-600"
+                          title="Delete remark"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-500 italic mb-4">No owner remarks added yet</div>
+              )}
+
+              {/* Add Owner Remark Form */}
+              {addingOwnerRemark && (
+                <div className="space-y-3">
+                  <textarea
+                    value={ownerRemark}
+                    onChange={(e) => setOwnerRemark(e.target.value)}
+                    placeholder="Add your remark..."
+                    rows={3}
+                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  />
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={handleAddOwnerRemark}
+                      disabled={!ownerRemark.trim()}
+                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      Add Remark
+                    </button>
+                    <button
+                      onClick={() => {
+                        setAddingOwnerRemark(false);
+                        setOwnerRemark('');
+                      }}
+                      className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* POD Collection Details */}
             {(trip.status === 'pod_collected' || trip.status === 'couriered' || trip.status === 'delivered') && (
-              <div className="bg-white shadow-lg rounded-xl p-6">
+              <div className="bg-white shadow rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">POD Collection Details</h3>
                 <div className="space-y-4">
                   <div className="flex items-center text-green-600">
@@ -327,7 +519,7 @@ const TripDetails: React.FC = () => {
 
             {/* Courier Details */}
             {(trip.status === 'couriered' || trip.status === 'delivered') && trip.courierPartner && (
-              <div className="bg-white shadow-lg rounded-xl p-6">
+              <div className="bg-white shadow rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Courier Details</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
@@ -368,7 +560,7 @@ const TripDetails: React.FC = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Quick Actions */}
-            <div className="bg-white shadow-lg rounded-xl p-6">
+            <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <button
@@ -407,7 +599,7 @@ const TripDetails: React.FC = () => {
             </div>
 
             {/* Assignment Info */}
-            <div className="bg-white shadow-lg rounded-xl p-6">
+            <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Assignment Info</h3>
               <div className="space-y-4">
                 <div>
@@ -430,7 +622,7 @@ const TripDetails: React.FC = () => {
             </div>
 
             {/* Timeline */}
-            <div className="bg-white shadow-lg rounded-xl p-6">
+            <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Timeline</h3>
               <div className="space-y-4">
                 {timelineEvents.map((event, index) => {

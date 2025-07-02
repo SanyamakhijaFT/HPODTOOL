@@ -22,13 +22,6 @@ const tabs: Tab[] = [
     color: 'bg-gray-100 text-gray-800',
   },
   {
-    id: 'vehicle_unloaded',
-    name: 'Vehicle Unloaded',
-    count: 127,
-    description: 'Ready for assignment',
-    color: 'bg-orange-100 text-orange-800',
-  },
-  {
     id: 'assigned',
     name: 'Assigned',
     count: 45,

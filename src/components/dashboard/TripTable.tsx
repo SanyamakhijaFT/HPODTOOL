@@ -30,12 +30,6 @@ interface TripTableProps {
 }
 
 const statusConfig = {
-  vehicle_unloaded: {
-    label: 'Vehicle Unloaded',
-    icon: Truck,
-    color: 'bg-orange-100 text-orange-800',
-    nextStatus: 'assigned',
-  },
   assigned: {
     label: 'Assigned',
     icon: User,
@@ -93,6 +87,7 @@ const runnerOptions = [
   'Lokesh Kumar',
   'Arjun Singh',
   'Rahul Sharma',
+  'Non-Runner Cluster',
 ];
 
 const slotStatusOptions = [
@@ -208,8 +203,8 @@ const TripTable: React.FC<TripTableProps> = ({
   const saveRunnerUpdate = async (tripId: string, newRunner: string) => {
     await new Promise(resolve => setTimeout(resolve, 500));
     const updates: Partial<Trip> = { 
-      runner: newRunner,
-      status: newRunner ? 'assigned' : 'vehicle_unloaded'
+      runner: newRunner === 'Non-Runner Cluster' ? undefined : newRunner,
+      status: (newRunner && newRunner !== 'Non-Runner Cluster') ? 'assigned' : 'vehicle_unloaded'
     };
     onUpdateTrip(tripId, updates);
     setEditingRunner(null);
@@ -223,7 +218,7 @@ const TripTable: React.FC<TripTableProps> = ({
 
   if (trips.length === 0) {
     return (
-      <div className="bg-white rounded-xl p-12 text-center">
+      <div className="bg-white rounded-lg p-12 text-center">
         <Package className="mx-auto h-12 w-12 text-gray-400" />
         <h3 className="mt-2 text-sm font-medium text-gray-900">No trips found</h3>
         <p className="mt-1 text-sm text-gray-500">
@@ -234,7 +229,7 @@ const TripTable: React.FC<TripTableProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden">
+    <div className="bg-white rounded-lg overflow-hidden">
       {/* Bulk Actions Bar */}
       {selectedTrips.length > 0 && (
         <div className="px-6 py-3 bg-blue-50 border-b border-blue-200">
@@ -285,8 +280,8 @@ const TripTable: React.FC<TripTableProps> = ({
           const isEditingOwnerForTrip = editingOwner === trip.id;
           const isEditingRunnerForTrip = editingRunner === trip.id;
           const isEditingSlotStatusForTrip = editingSlotStatus === trip.id;
-          const statusInfo = statusConfig[trip.status];
-          const StatusIcon = statusInfo.icon;
+          const statusInfo = statusConfig[trip.status as keyof typeof statusConfig];
+          const StatusIcon = statusInfo?.icon || User;
 
           return (
             <div
@@ -318,7 +313,6 @@ const TripTable: React.FC<TripTableProps> = ({
                             onChange={(e) => saveStatusUpdate(trip.id, e.target.value)}
                             className="text-xs border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                           >
-                            <option value="vehicle_unloaded">Vehicle Unloaded</option>
                             <option value="assigned">Assigned</option>
                             <option value="in_progress">In Progress</option>
                             <option value="pod_collected">POD Collected</option>
@@ -335,10 +329,12 @@ const TripTable: React.FC<TripTableProps> = ({
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
-                            <StatusIcon className="h-3 w-3 mr-1" />
-                            {statusInfo.label}
-                          </span>
+                          {statusInfo && (
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                              <StatusIcon className="h-3 w-3 mr-1" />
+                              {statusInfo.label}
+                            </span>
+                          )}
                           <button
                             onClick={() => startEditingStatus(trip.id)}
                             className="p-1 text-gray-400 hover:text-gray-600"

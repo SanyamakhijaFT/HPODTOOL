@@ -41,6 +41,13 @@ export const mockTrips: Trip[] = [
         images: ['remark_001.jpg', 'remark_002.jpg'],
         addedAt: '2024-01-16T10:30:00Z'
       }
+    ],
+    ownerRemarks: [
+      {
+        text: 'High priority trip - ensure timely collection',
+        addedAt: '2024-01-15T09:00:00Z',
+        addedBy: 'Ajay Kumar'
+      }
     ]
   },
   {
@@ -114,7 +121,21 @@ export const mockTrips: Trip[] = [
         images: ['remark_003.jpg', 'remark_004.jpg'],
         addedAt: '2024-01-16T14:20:00Z'
       }
-    ]
+    ],
+    issueReported: {
+      type: 'Address Not Found',
+      description: 'GPS coordinates not matching actual location',
+      reportedAt: '2024-01-16T12:00:00Z',
+      updates: [
+        {
+          updatedAt: '2024-01-16T13:30:00Z',
+          type: 'Address Clarified',
+          description: 'Contacted supplier and got correct address'
+        }
+      ],
+      resolved: true,
+      resolvedAt: '2024-01-16T14:00:00Z'
+    }
   },
   {
     id: 'TRP004',
@@ -473,15 +494,6 @@ export const mockFOResponses: FOResponse[] = [
 ];
 
 export const mockStats: Stats[] = [
-  {
-    name: 'Vehicle Unloaded',
-    value: 127,
-    change: '+12%',
-    changeType: 'increase',
-    icon: 'Truck',
-    color: 'orange',
-    description: 'Ready for assignment',
-  },
   {
     name: 'Assigned',
     value: 45,

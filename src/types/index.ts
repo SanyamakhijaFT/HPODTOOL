@@ -70,6 +70,11 @@ export interface Trip {
     images: string[]; // 2-3 images added by runner
     addedAt: string;
   }[];
+  ownerRemarks?: {
+    text: string;
+    addedAt: string;
+    addedBy: string;
+  }[];
   foResponse?: any; // For FO courier responses submitted by runner
 }
 

@@ -17,6 +17,7 @@ import {
   MessageSquare,
   Plus,
   Send,
+  Trash2,
 } from 'lucide-react';
 import { Trip, FOResponse } from '../../types';
 
@@ -195,6 +196,19 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
     setShowAddRemarkForm(false);
     setRemarkType('');
     setRemarkText('');
+    setLoading(false);
+  };
+
+  const handleDeleteRemark = async (index: number) => {
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const updatedRemarks = trip.runnerRemarks?.filter((_, i) => i !== index) || [];
+    
+    onUpdateTrip(trip.id, {
+      runnerRemarks: updatedRemarks
+    });
+    
     setLoading(false);
   };
 
@@ -560,11 +574,23 @@ const PODCollection: React.FC<PODCollectionProps> = ({ trip, onUpdateTrip }) => 
           <div className="space-y-3">
             {trip.runnerRemarks.map((remark, index) => (
               <div key={index} className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-                <div className="text-sm text-purple-800 mb-2">
-                  <span className="font-medium">{remark.type}:</span> {remark.text}
-                </div>
-                <div className="text-xs text-purple-600">
-                  Added: {new Date(remark.addedAt).toLocaleString()}
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="text-sm text-purple-800 mb-2">
+                      <span className="font-medium">{remark.type}:</span> {remark.text}
+                    </div>
+                    <div className="text-xs text-purple-600">
+                      Added: {new Date(remark.addedAt).toLocaleString()}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteRemark(index)}
+                    disabled={loading}
+                    className="ml-2 p-1 text-red-400 hover:text-red-600 disabled:opacity-50"
+                    title="Delete remark"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             ))}
