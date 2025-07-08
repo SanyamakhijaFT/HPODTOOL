@@ -551,6 +551,114 @@ const TripDetails: React.FC = () => {
             )}
           </div>
 
+          {/* Runner Updates Section */}
+          <div className="bg-white shadow rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Runner Updates</h3>
+            
+            {/* Runner Remarks */}
+            {trip.runnerRemarks && trip.runnerRemarks.length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-md font-medium text-gray-900 mb-4 flex items-center">
+                  <MessageSquare className="h-5 w-5 mr-2 text-purple-500" />
+                  Runner Remarks
+                </h4>
+                
+                <div className="space-y-3">
+                  {trip.runnerRemarks
+                    .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
+                    .map((remark, index) => (
+                    <div key={index} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="text-sm text-purple-800 mb-2">
+                            <span className="font-medium">{remark.type}:</span> {remark.text}
+                          </div>
+                          <div className="text-xs text-purple-600">
+                            Added: {new Date(remark.addedAt).toLocaleString()}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Runner Issues */}
+            {trip.issueReported && (
+              <div>
+                <h4 className="text-md font-medium text-gray-900 mb-4 flex items-center">
+                  <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
+                  Reported Issues
+                </h4>
+                
+                <div className="space-y-4">
+                  {/* Current Issue */}
+                  <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <div className="flex items-start">
+                      <AlertTriangle className="h-5 w-5 text-red-400 mr-3 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-red-800 mb-1">{trip.issueReported.type}</div>
+                        {trip.issueReported.description && (
+                          <div className="text-sm text-red-700 mb-2">{trip.issueReported.description}</div>
+                        )}
+                        <div className="text-xs text-red-600">
+                          Reported: {new Date(trip.issueReported.reportedAt).toLocaleString()}
+                        </div>
+                        {trip.issueReported.resolved && (
+                          <div className="text-xs text-green-600 mt-1 flex items-center">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Resolved: {new Date(trip.issueReported.resolvedAt!).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="ml-4">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          trip.issueReported.resolved 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {trip.issueReported.resolved ? 'Resolved' : 'Open'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Issue Updates */}
+                  {trip.issueReported.updates && trip.issueReported.updates.length > 0 && (
+                    <div>
+                      <h5 className="text-sm font-medium text-gray-900 mb-2">Issue Updates</h5>
+                      <div className="space-y-2">
+                        {trip.issueReported.updates
+                          .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+                          .map((update, index) => (
+                          <div key={index} className="p-3 bg-yellow-50 rounded border border-yellow-200">
+                            <div className="text-sm text-yellow-800 font-medium">{update.type}</div>
+                            {update.description && (
+                              <div className="text-sm text-yellow-700 mt-1">{update.description}</div>
+                            )}
+                            <div className="text-xs text-yellow-600 mt-1">
+                              Updated: {new Date(update.updatedAt).toLocaleString()}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* No Updates Message */}
+            {(!trip.runnerRemarks || trip.runnerRemarks.length === 0) && !trip.issueReported && (
+              <div className="text-center py-8">
+                <MessageSquare className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h4 className="text-lg font-medium text-gray-900 mb-2">No Runner Updates</h4>
+                <p className="text-gray-500">No remarks or issues have been reported by the runner yet.</p>
+              </div>
+            )}
+          </div>
+
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Quick Actions */}
